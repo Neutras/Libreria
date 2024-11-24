@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 dotenv.config();
 
@@ -16,11 +17,10 @@ app.get('/', (req, res) => {
   res.send('Bienvenido a la API de E-commerce');
 });
 
-// Rutas de usuarios
+// Rutas
 app.use('/api/users', userRoutes);
-
-// Rutas de productos
 app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {

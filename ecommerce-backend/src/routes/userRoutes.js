@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/userController');
+const { registerUser, loginUser, getUserPoints } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -17,5 +17,8 @@ router.get('/profile', protect, (req, res) => {
     user: req.user, // Esto asume que el middleware "protect" asigna "req.user"
   });
 });
+
+// Ruta para ver puntos
+router.get('/points', protect, getUserPoints);
 
 module.exports = router;

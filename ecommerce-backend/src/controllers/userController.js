@@ -70,7 +70,25 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getUserPoints = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { points: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    res.status(200).json({ points: user.points });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al consultar los puntos.' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  getUserPoints,
 };
