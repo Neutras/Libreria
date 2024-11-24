@@ -1,5 +1,5 @@
 
-# E-Commerce
+# E-Commerce API
 ---
 
 ## **Tecnologías Utilizadas**
@@ -10,6 +10,7 @@
 - **PostgreSQL:** Base de datos relacional.
 - **JWT (JSON Web Tokens):** Para autenticación y autorización.
 - **Nodemon:** Herramienta para desarrollo con reinicio automático.
+- **node-cron:** Programación de tareas automáticas para funcionalidades avanzadas.
 
 ---
 
@@ -68,7 +69,17 @@
 | GET    | `/api/products`     | Lista todos los productos.                     | No                |
 | GET    | `/api/products/:id` | Obtiene detalles de un producto específico.    | No                |
 | PUT    | `/api/products/:id` | Actualiza un producto.                         | Token (Admin)     |
+| PATCH  | `/api/products/hot` | Actualiza el estado "HOT" de productos.        | Token (Admin)     |
 | DELETE | `/api/products/:id` | Elimina un producto.                           | Token (Admin)     |
+
+---
+
+### **Promociones**
+
+| Método | Ruta                | Descripción                                        | Autorización      |
+|--------|---------------------|----------------------------------------------------|-------------------|
+| POST   | `/api/promotions`   | Crea una promoción para un producto específico.    | Token (Admin)     |
+| GET    | `/api/promotions`   | Lista todas las promociones activas.              | No                |
 
 ---
 
@@ -91,6 +102,9 @@
 2. **Gestión de Productos:**
    - CRUD completo para productos.
    - Gestión de stock al procesar pedidos.
+   - Actualización de estado "HOT" basada en criterios:
+     - Promociones activas (>20% descuento).
+     - Ventas recientes (10 o más en los últimos 7 días).
 
 3. **Gestión de Pedidos:**
    - Cálculo automático del total del pedido.
@@ -101,53 +115,52 @@
    - 1 punto por cada $100 CLP en compras superiores a $4,000 CLP.
    - Visualización de puntos acumulados por usuario.
 
+5. **Gestión de Promociones:**
+   - Promociones vinculadas a productos específicos.
+   - Tiempo de expiración configurable.
+   - Interacción con el estado "HOT" de productos.
+
+6. **Tareas Automáticas:**
+   - Uso de `node-cron` para actualizar el estado "HOT" de productos cada hora, basado en promociones y ventas recientes.
+
+7. **Planificación Automática**
+   - **Cron Jobs:** Las tareas automáticas actualizan dinámicamente el estado "HOT" de productos cada hora.
+   - **Criterios para "HOT":**
+      1. Productos con promociones activas (>20% descuento).
+      2. Productos con 10 o más ventas en los últimos 7 días.
+   - **Uso:** No requiere intervención manual para mantener actualizados los productos destacados.
+
+
 ---
 
 ## **Pruebas**
 
 Puedes usar **Postman** u otra herramienta similar para probar la API. Asegúrate de incluir un token válido en las rutas protegidas.
 
-### **Ejemplo: Crear Pedido**
+### **Ejemplo: Crear Promoción**
 1. **Método:** `POST`
-2. **URL:** `http://localhost:4000/api/orders`
+2. **URL:** `http://localhost:4000/api/promotions`
 3. **Headers:**
-   - `Authorization`: `Bearer <TOKEN>`
+   - `Authorization`: `Bearer <TOKEN_ADMIN>`
 4. **Body:**
    ```json
    {
-     "products": [
-       { "productId": 1, "quantity": 2 },
-       { "productId": 2, "quantity": 1 }
-     ]
+     "productId": 1,
+     "discount": 20, <-- Porcentaje
+     "duration": 48  <-- Horas
    }
    ```
 
 ### **Respuesta Esperada:**
 ```json
 {
-  "message": "Pedido creado exitosamente.",
-  "order": {
-    "id": 1,
-    "userId": 1,
-    "total": 5000,
-    "status": "Pending",
-    "products": [
-      {
-        "id": 1,
-        "orderId": 1,
-        "productId": 1,
-        "quantity": 2
-      },
-      {
-        "id": 2,
-        "orderId": 1,
-        "productId": 2,
-        "quantity": 1
-      }
-    ],
-    "createdAt": "2024-11-23T14:00:00.000Z",
-    "updatedAt": "2024-11-23T14:00:00.000Z"
-  }
+  "id": 1,
+  "productId": 1,
+  "discount": 20,
+  "duration": 48,
+  "expiresAt": "2024-11-25T14:00:00.000Z",
+  "createdAt": "2024-11-23T14:00:00.000Z",
+  "updatedAt": "2024-11-23T14:00:00.000Z"
 }
 ```
 
