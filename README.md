@@ -160,10 +160,3 @@ Puedes usar **Postman** u otra herramienta similar para probar la API. Asegúrat
 3. Envía un pull request con una descripción clara de tus cambios.
 
 ---
-
-## **Licencia**
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-```
-
-Puedes copiar este contenido en el archivo `README.md` de tu proyecto en GitHub. Si necesitas agregar algo más o ajustar detalles, ¡avísame! 😊
