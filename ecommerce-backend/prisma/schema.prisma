@@ -37,14 +37,15 @@ model Product {
 
 // Modelo para Pedidos
 model Order {
-  id        Int            @id @default(autoincrement())
-  userId    Int // Usuario que realizó el pedido
-  user      User           @relation(fields: [userId], references: [id])
-  status    String         @default("Pending") // Estados: Pending, Preparing, Ready, Completed
-  total     Float // Total del pedido
-  products  OrderProduct[] // Productos incluidos en el pedido
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id          Int             @id @default(autoincrement())
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
+  status      String          @default("Pending") // Estados: Pending, Preparing, Ready, Completed
+  total       Float
+  points      Int             @default(0) // Puntos generados por el pedido
+  products    OrderProduct[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 // Relación entre Pedidos y Productos

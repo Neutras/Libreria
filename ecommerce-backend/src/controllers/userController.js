@@ -5,10 +5,6 @@ const prisma = new PrismaClient();
 
 // Registrar un nuevo usuario
 const registerUser = async (req, res) => {
-  console.log("Cuerpo de la solicitud recibido:", req.body); // Verifica lo que llega
-  console.log("Método:", req.method); // Confirma que es POST
-  console.log("Headers:", req.headers); // Revisa el tipo de contenido enviado
-
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -35,8 +31,7 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error al registrar usuario:', error);
-    if (error.code === 'P2002') { // Prisma duplicate key error
+    if (error.code === 'P2002') {
       return res.status(400).json({ error: 'El correo ya está registrado.' });
     }
     res.status(500).json({ error: 'Error al registrar el usuario.' });
@@ -71,7 +66,6 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
     res.status(500).json({ error: 'Error al iniciar sesión.' });
   }
 };

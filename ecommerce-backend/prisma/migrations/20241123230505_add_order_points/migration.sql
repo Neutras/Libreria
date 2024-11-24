@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Order" ADD COLUMN     "points" INTEGER NOT NULL DEFAULT 0;
