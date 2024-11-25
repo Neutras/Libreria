@@ -96,6 +96,14 @@
 
 ---
 
+### **Alertas**
+
+| Método | Ruta                 | Descripción                                       | Autorización      |
+|--------|----------------------|---------------------------------------------------|-------------------|
+| GET   | `/api/alerts`    | Lista las alertas detectadas. | Token (Admin)     |
+
+---
+
 ## **Características del Backend**
 
 1. **Autenticación y Autorización:**
