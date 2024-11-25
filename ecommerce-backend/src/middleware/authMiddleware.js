@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 /**
  * Middleware para autenticar al usuario usando JSON Web Tokens (JWT).
- * @param {string[]} roles - Lista de roles permitidos para acceder a la ruta.
  */
 const protect = async (req, res, next) => {
   let token;
@@ -39,24 +38,44 @@ const protect = async (req, res, next) => {
 
       next();
     } catch (error) {
-      console.error(error);
-      res.status(401).json({ error: 'No autorizado. Token no válido.' });
+      console.error('Error de autenticación:', error);
+      res.status(401).json({
+        error: 'No autorizado. Por favor, verifica tus credenciales.',
+      });
     }
   } else {
-    res.status(401).json({ error: 'No autorizado. Token no encontrado.' });
+    res.status(401).json({
+      error: 'No autorizado. Debes proporcionar un token válido.',
+    });
   }
 };
 
 /**
  * Middleware para verificar roles específicos.
- * @param {string[]} roles - Lista de roles permitidos para acceder a la ruta.
  */
 const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
-    res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+    res.status(403).json({
+      error: 'Acceso denegado. Se requiere rol de administrador.',
+    });
   }
 };
 
-module.exports = { protect, admin };
+/**
+ * Middleware para roles personalizados.
+ * @param {string[]} roles - Lista de roles permitidos.
+ */
+const authorize = (roles = []) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        error: 'Acceso denegado. No tienes los permisos requeridos.',
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, admin, authorize };

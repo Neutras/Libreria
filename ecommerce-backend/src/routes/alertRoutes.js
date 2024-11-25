@@ -1,10 +1,16 @@
 const express = require('express');
-const { getAlerts, resolveAlert } = require('../controllers/alertController');
 const { protect, admin } = require('../middleware/authMiddleware');
+const { getAlerts, createAlert, deleteAlert } = require('../controllers/alertController');
 
 const router = express.Router();
 
-router.get('/', protect, admin, getAlerts); // Listar alertas
-router.patch('/:id/resolve', protect, admin, resolveAlert); // Resolver alerta
+// Obtener todas las alertas (accesible para admin y usuarios)
+router.get('/', protect, getAlerts);
+
+// Crear una nueva alerta (solo admin)
+router.post('/', protect, admin, createAlert);
+
+// Eliminar una alerta por ID (solo admin)
+router.delete('/:id', protect, admin, deleteAlert);
 
 module.exports = router;

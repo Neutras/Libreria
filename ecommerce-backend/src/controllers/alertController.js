@@ -1,29 +1,70 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+
+/**
+ * Obtener todas las alertas visibles para el usuario actual.
+*/
 const getAlerts = async (req, res) => {
   try {
-    const alerts = await prisma.inventoryAlert.findMany({
-      where: { isResolved: false },
-      include: { product: true },
+    const alerts = await prisma.alert.findMany({
+      where: {
+        OR: [
+          { role: null }, // Alertas para todos los usuarios
+          { role: req.user.role }, // Alertas específicas según el rol
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
     });
-    res.json(alerts);
+
+    res.status(200).json({ alerts });
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener alertas de inventario.' });
+    console.error('Error al obtener alertas:', error);
+    res.status(500).json({ error: 'Error al obtener alertas.' });
   }
 };
 
-const resolveAlert = async (req, res) => {
-  const { id } = req.params;
+/**
+ * Crear una nueva alerta.
+*/
+const createAlert = async (req, res) => {
+  const { message, role } = req.body;
+
   try {
-    await prisma.inventoryAlert.update({
-      where: { id: parseInt(id) },
-      data: { isResolved: true },
+    const alert = await prisma.alert.create({
+      data: {
+        message,
+        role, // Puede ser null, 'user' o 'admin'
+        createdAt: new Date(),
+      },
     });
-    res.json({ message: 'Alerta resuelta exitosamente.' });
+
+    // Emitir notificación en tiempo real
+    req.io.emit('new-alert', { message: `Nueva alerta: ${alert.message}` });
+
+    res.status(201).json({ alert });
   } catch (error) {
-    res.status(500).json({ message: 'Error al resolver la alerta.' });
+    console.error('Error al crear alerta:', error);
+    res.status(500).json({ error: 'Error al crear la alerta.' });
   }
 };
 
-module.exports = { getAlerts, resolveAlert };
+/**
+ * Eliminar una alerta por su ID.
+*/
+const deleteAlert = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.alert.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.status(200).json({ message: 'Alerta eliminada exitosamente.' });
+  } catch (error) {
+    console.error('Error al eliminar alerta:', error);
+    res.status(500).json({ error: 'Error al eliminar la alerta.' });
+  }
+};
+
+module.exports = { getAlerts, createAlert, deleteAlert };
