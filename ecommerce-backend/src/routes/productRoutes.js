@@ -1,24 +1,23 @@
-const express = require("express");
-const {
-  createProduct,
-  getProducts,
-  updateProduct,
-  deleteProduct,
-} = require("../controllers/productController");
-const { protect, admin } = require("../middleware/authMiddleware");
+const express = require('express');
+const { protect, admin } = require('../middleware/authMiddleware');
+const { 
+    createProduct, 
+    getProducts, 
+    getProductById, 
+    updateProduct, 
+    deleteProduct, 
+    toggleHotStatus 
+} = require('../controllers/productController');
 
 const router = express.Router();
 
-// Crear Producto (Solo Administradores)
-router.post("/", protect, admin, createProduct);
+// Rutas
 
-// Listar Productos
-router.get("/", getProducts);
-
-// Editar Producto (Solo Administradores)
-router.put("/:id", protect, admin, updateProduct);
-
-// Eliminar Producto (Solo Administradores)
-router.delete("/:id", protect, admin, deleteProduct);
+router.post('/', protect, admin, createProduct);// Crear producto (solo admin)
+router.get('/', getProducts); // Listar productos
+router.get('/:id', getProductById); // Obtener producto por ID
+router.put('/:id', protect, admin, updateProduct); // Actualizar producto (solo admin)
+router.delete('/:id', protect, admin, deleteProduct); // Eliminar producto (solo admin)
+router.patch('/hot', protect, admin, toggleHotStatus); // Cambiar estado HOT (solo admin)
 
 module.exports = router;

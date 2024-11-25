@@ -22,30 +22,41 @@ model User {
 
 // Modelo para Productos
 model Product {
-  id          Int            @id @default(autoincrement())
-  name        String
-  description String
-  price       Float
-  stock       Int            @default(0) // Stock disponible
-  category    String // Categoría del producto
-  isHot       Boolean        @default(false) // Producto destacado
-  orders      OrderProduct[]
-  promotions  Promotion[] // Relación con promociones
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id                Int              @id @default(autoincrement())
+  name              String
+  description       String
+  price             Float
+  stock             Int              @default(0)
+  lowStockThreshold Int              @default(5) // Límite de stock bajo
+  category          String
+  isHot             Boolean          @default(false)
+  orders            OrderProduct[]
+  promotions        Promotion[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  InventoryAlert    InventoryAlert[]
+}
+
+model InventoryAlert {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  message    String
+  isResolved Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
 
 // Modelo para Pedidos
 model Order {
-  id          Int             @id @default(autoincrement())
-  userId      Int
-  user        User            @relation(fields: [userId], references: [id])
-  status      String          @default("Pending") // Estados: Pending, Preparing, Ready, Completed
-  total       Float
-  points      Int             @default(0) // Puntos generados por el pedido
-  products    OrderProduct[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  user      User           @relation(fields: [userId], references: [id])
+  status    String         @default("Pending") // Estados: Pending, Preparing, Ready, Completed
+  total     Float
+  points    Int            @default(0) // Puntos generados por el pedido
+  products  OrderProduct[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 }
 
 // Relación entre Pedidos y Productos
@@ -63,11 +74,11 @@ model OrderProduct {
 // Historial de Promociones
 model Promotion {
   id        Int      @id @default(autoincrement())
-  productId Int
-  product   Product  @relation(fields: [productId], references: [id]) // Relación con Product
+  productId Int      @unique // Agregar esta línea para hacerlo único
+  product   Product  @relation(fields: [productId], references: [id])
   discount  Float // Porcentaje de descuento
-  startDate DateTime
-  endDate   DateTime
+  duration  Int // Duración en horas
+  expiresAt DateTime // Fecha y hora de expiración calculada
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

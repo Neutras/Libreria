@@ -70,6 +70,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Ver puntos de la cuenta AUTENTICADA
 const getUserPoints = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -87,8 +88,34 @@ const getUserPoints = async (req, res) => {
   }
 };
 
+// Ver puntos de usuario
+const getUserPointsByAdmin = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userId) },
+      select: { id: true, name: true, points: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    return res.status(200).json({
+      message: "Puntos del usuario obtenidos exitosamente",
+      userPoints: user.points,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener los puntos del usuario" });
+  }
+};
+
+
 module.exports = {
   registerUser,
   loginUser,
   getUserPoints,
+  getUserPointsByAdmin
 };

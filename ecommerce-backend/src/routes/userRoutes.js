@@ -1,6 +1,12 @@
 const express = require('express');
-const { registerUser, loginUser, getUserPoints } = require('../controllers/userController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
+const { 
+  registerUser, 
+  loginUser, 
+  getUserPoints, 
+  getUserPointsByAdmin 
+} = require('../controllers/userController');
+
 
 const router = express.Router();
 
@@ -20,5 +26,7 @@ router.get('/profile', protect, (req, res) => {
 
 // Ruta para ver puntos
 router.get('/points', protect, getUserPoints);
+router.get('/:userId/points', protect, admin, getUserPointsByAdmin); // Admin: Obtener puntos de un usuario
+
 
 module.exports = router;
