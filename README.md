@@ -1,4 +1,8 @@
-# E-Commerce Backend API Documentation
+# E-Commerce Backend
+
+Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, Prisma y Socket.IO.
+
+---
 
 ## **Tecnologías Utilizadas**
 
@@ -6,9 +10,9 @@
 - **Express.js:** Framework para construir la API RESTful.
 - **Prisma ORM:** Gestión y consultas de base de datos.
 - **PostgreSQL:** Base de datos relacional.
-- **JWT (JSON Web Tokens):** Para autenticación y autorización.
+- **JWT (JSON Web Tokens):** Autenticación y autorización.
+- **Socket.IO:** Implementación de notificaciones en tiempo real.
 - **Nodemon:** Herramienta para desarrollo con reinicio automático.
-- **Node-cron:** Tareas programadas para funcionalidades automáticas.
 
 ---
 
@@ -21,7 +25,6 @@
    ```env
    DATABASE_URL="postgresql://<usuario>:<contraseña>@<host>:<puerto>/<nombre_bd>"
    JWT_SECRET="clave_secreta_para_jwt"
-   PORT=4000
    ```
 
 ### **Pasos**
@@ -52,140 +55,102 @@
 
 ### **Usuarios**
 
-| Método | Ruta           | Descripción                                | Autorización |
-|--------|----------------|--------------------------------------------|--------------|
-| POST   | `/api/users/register` | Registro de un nuevo usuario.             | No           |
+| Método | Ruta                  | Descripción                              | Autorización |
+|--------|-----------------------|------------------------------------------|--------------|
+| POST   | `/api/users/register` | Registro de un nuevo usuario.            | No           |
 | POST   | `/api/users/login`    | Inicio de sesión y generación de token.  | No           |
 | GET    | `/api/users/profile`  | Obtiene el perfil del usuario autenticado.| Token        |
-| GET    | `/api/users/points`  | Obtiene los puntos del usuario autenticado.| Token        |
-| GET    | `/api/users/:id/points`  | Obtiene los puntos un usuario.| Token (Admin)        |
 
 ---
 
 ### **Productos**
 
-| Método | Ruta                | Descripción                                    | Autorización      |
-|--------|---------------------|------------------------------------------------|-------------------|
-| POST   | `/api/products`     | Crea un nuevo producto.                        | Token (Admin)     |
-| GET    | `/api/products`     | Lista todos los productos.                     | No                |
-| GET    | `/api/products/:id` | Obtiene detalles de un producto específico.    | No                |
-| PATCH  | `/api/products/hot` | Actualiza el estado HOT según criterios.       | Token (Admin)     |
-| PUT    | `/api/products/:id` | Actualiza un producto.                         | Token (Admin)     |
-| DELETE | `/api/products/:id` | Elimina un producto.                           | Token (Admin)     |
+| Método | Ruta                   | Descripción                                    | Autorización |
+|--------|------------------------|------------------------------------------------|--------------|
+| POST   | `/api/products`        | Crea un nuevo producto.                        | Token (Admin)|
+| GET    | `/api/products`        | Lista todos los productos.                     | No           |
+| GET    | `/api/products/:id`    | Obtiene detalles de un producto específico.    | No           |
+| PUT    | `/api/products/:id`    | Actualiza un producto.                         | Token (Admin)|
+| DELETE | `/api/products/:id`    | Elimina un producto.                           | Token (Admin)|
 
 ---
 
 ### **Pedidos**
 
-| Método | Ruta              | Descripción                                         | Autorización  |
-|--------|-------------------|-----------------------------------------------------|---------------|
-| POST   | `/api/orders`     | Crea un pedido y calcula automáticamente el total. | Token         |
-| GET    | `/api/orders`     | Lista pedidos del usuario autenticado.             | Token         |
-| PUT    | `/api/orders/:id` | Actualiza el estado de un pedido (Admin).          | Token (Admin) |
-| PUT    | `/api/orders/:id/cancel` | Cancelar el pedido.          | Token |
-| GET    | `/api/orders/all` | Ruta para listar todos los pedidos.          | Token (Admin) |
+| Método | Ruta                  | Descripción                                         | Autorización |
+|--------|-----------------------|-----------------------------------------------------|--------------|
+| POST   | `/api/orders`         | Crea un pedido.                                     | Token        |
+| GET    | `/api/orders`         | Lista pedidos del usuario autenticado o todos (Admin).| Token        |
+| GET    | `/api/orders/:id`     | Obtiene detalles de un pedido específico.           | Token        |
+| PUT    | `/api/orders/:id`     | Actualiza el estado de un pedido (Admin).           | Token (Admin)|
+| DELETE | `/api/orders/:id`     | Cancela un pedido (si está en estado `Pending`).    | Token        |
 
 ---
 
 ### **Promociones**
 
-| Método | Ruta                 | Descripción                                       | Autorización      |
-|--------|----------------------|---------------------------------------------------|-------------------|
-| POST   | `/api/promotions`    | Crea o actualiza una promoción para un producto. | Token (Admin)     |
-| GET    | `/api/promotions`    | Lista todas las promociones activas.             | No                |
+| Método | Ruta                     | Descripción                                    | Autorización |
+|--------|--------------------------|------------------------------------------------|--------------|
+| POST   | `/api/promotions`        | Crea una nueva promoción.                      | Token (Admin)|
+| GET    | `/api/promotions`        | Lista todas las promociones activas.           | No           |
+| DELETE | `/api/promotions/:id`    | Elimina una promoción específica.              | Token (Admin)|
 
 ---
 
 ### **Alertas**
 
-| Método | Ruta                 | Descripción                                       | Autorización      |
-|--------|----------------------|---------------------------------------------------|-------------------|
-| GET   | `/api/alerts`    | Lista las alertas detectadas. | Token (Admin)     |
+| Método | Ruta               | Descripción                                 | Autorización |
+|--------|--------------------|---------------------------------------------|--------------|
+| GET    | `/api/alerts`      | Obtiene las alertas de bajo stock.          | Token (Admin)|
+
+---
+
+### **Websockets (Notificaciones en tiempo real)**
+
+Las notificaciones en tiempo real se gestionan mediante `Socket.IO`:
+- **Pedidos:** 
+  - Los usuarios reciben notificaciones cuando su pedido es creado o actualizado.
+  - Los administradores son notificados cuando se crea un nuevo pedido.
+- **Alertas:**
+  - Los administradores reciben notificaciones de bajo stock.
 
 ---
 
 ## **Características del Backend**
 
 1. **Autenticación y Autorización:**
-   - JWT protege rutas sensibles.
-   - Roles de usuario (`user`, `admin`).
+   - Basada en JWT.
+   - Separación de roles (`admin` y `user`).
 
-2. **Gestión de Productos:**
+2. **Notificaciones en tiempo real:**
+   - Implementación de `Socket.IO`.
+   - Canalización por roles y usuarios.
+
+3. **Gestión de Productos:**
    - CRUD completo para productos.
-   - Gestión de stock al procesar pedidos.
+   - Control de stock.
 
-3. **Gestión de Pedidos:**
-   - Cálculo automático del total del pedido.
-   - Acumulación de puntos basada en el monto del pedido.
-   - Actualización de estados: `Pending`, `Preparing`, `Ready`, `Completed`.
+4. **Gestión de Pedidos:**
+   - Cálculo automático del total.
+   - Actualización de estados y cancelación.
 
-4. **Sistema de Puntos:**
-   - 1 punto por cada $100 CLP en compras superiores a $4,000 CLP.
-   - Visualización de puntos acumulados por usuario.
+5. **Sistema de Promociones:**
+   - Promociones con condiciones específicas.
+   - Gestión automática de promociones expiradas.
 
-5. **Promociones y Productos HOT:**
-   - Promociones con descuentos por tiempo limitado.
-   - Identificación automática de productos HOT basados en ventas y promociones.
-
-6. **Tareas Programadas (Cron Jobs):**
-   - Actualización automática del estado HOT de los productos cada 24 horas.
-
----
-
-## **Pruebas**
-
-Puedes usar **Postman** u otra herramienta similar para probar la API. Asegúrate de incluir un token válido en las rutas protegidas.
-
-### **Ejemplo: Crear Pedido**
-1. **Método:** `POST`
-2. **URL:** `http://localhost:4000/api/orders`
-3. **Headers:**
-   - `Authorization`: `Bearer <TOKEN>`
-4. **Body:**
-   ```json
-   {
-     "products": [
-       { "productId": 1, "quantity": 2 },
-       { "productId": 2, "quantity": 1 }
-     ]
-   }
-   ```
-
-### **Respuesta Esperada:**
-```json
-{
-  "message": "Pedido creado exitosamente.",
-  "order": {
-    "id": 1,
-    "userId": 1,
-    "total": 5000,
-    "status": "Pending",
-    "products": [
-      {
-        "id": 1,
-        "orderId": 1,
-        "productId": 1,
-        "quantity": 2
-      },
-      {
-        "id": 2,
-        "orderId": 1,
-        "productId": 2,
-        "quantity": 1
-      }
-    ],
-    "createdAt": "2024-11-23T14:00:00.000Z",
-    "updatedAt": "2024-11-23T14:00:00.000Z"
-  }
-}
-```
+6. **Sistema de Puntos:**
+   - Acumulación de puntos por compras mayores a $4,000 CLP.
 
 ---
 
 ## **Contribución**
 
-1. Crea un fork del repositorio.
-2. Realiza cambios en una rama nueva.
+1. Haz un fork del repositorio.
+2. Crea una rama nueva para tus cambios.
 3. Envía un pull request con una descripción clara de tus cambios.
 
 ---
+
+## **Pruebas**
+
+Usa **Postman** para probar los endpoints. Asegúrate de incluir un token válido en las rutas protegidas.
