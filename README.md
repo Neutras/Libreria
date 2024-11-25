@@ -1,6 +1,4 @@
-
-# E-Commerce
----
+# E-Commerce Backend API Documentation
 
 ## **Tecnologías Utilizadas**
 
@@ -10,6 +8,7 @@
 - **PostgreSQL:** Base de datos relacional.
 - **JWT (JSON Web Tokens):** Para autenticación y autorización.
 - **Nodemon:** Herramienta para desarrollo con reinicio automático.
+- **Node-cron:** Tareas programadas para funcionalidades automáticas.
 
 ---
 
@@ -19,9 +18,10 @@
 1. **Node.js** y **npm** instalados.
 2. **PostgreSQL** configurado en tu sistema.
 3. Archivo `.env` con las siguientes variables:
-   ```
+   ```env
    DATABASE_URL="postgresql://<usuario>:<contraseña>@<host>:<puerto>/<nombre_bd>"
    JWT_SECRET="clave_secreta_para_jwt"
+   PORT=4000
    ```
 
 ### **Pasos**
@@ -57,6 +57,8 @@
 | POST   | `/api/users/register` | Registro de un nuevo usuario.             | No           |
 | POST   | `/api/users/login`    | Inicio de sesión y generación de token.  | No           |
 | GET    | `/api/users/profile`  | Obtiene el perfil del usuario autenticado.| Token        |
+| GET    | `/api/users/points`  | Obtiene los puntos del usuario autenticado.| Token        |
+| GET    | `/api/users/:id/points`  | Obtiene los puntos un usuario.| Token (Admin)        |
 
 ---
 
@@ -67,6 +69,7 @@
 | POST   | `/api/products`     | Crea un nuevo producto.                        | Token (Admin)     |
 | GET    | `/api/products`     | Lista todos los productos.                     | No                |
 | GET    | `/api/products/:id` | Obtiene detalles de un producto específico.    | No                |
+| PATCH  | `/api/products/hot` | Actualiza el estado HOT según criterios.       | Token (Admin)     |
 | PUT    | `/api/products/:id` | Actualiza un producto.                         | Token (Admin)     |
 | DELETE | `/api/products/:id` | Elimina un producto.                           | Token (Admin)     |
 
@@ -79,6 +82,17 @@
 | POST   | `/api/orders`     | Crea un pedido y calcula automáticamente el total. | Token         |
 | GET    | `/api/orders`     | Lista pedidos del usuario autenticado.             | Token         |
 | PUT    | `/api/orders/:id` | Actualiza el estado de un pedido (Admin).          | Token (Admin) |
+| PUT    | `/api/orders/:id/cancel` | Cancelar el pedido.          | Token |
+| GET    | `/api/orders/all` | Ruta para listar todos los pedidos.          | Token (Admin) |
+
+---
+
+### **Promociones**
+
+| Método | Ruta                 | Descripción                                       | Autorización      |
+|--------|----------------------|---------------------------------------------------|-------------------|
+| POST   | `/api/promotions`    | Crea o actualiza una promoción para un producto. | Token (Admin)     |
+| GET    | `/api/promotions`    | Lista todas las promociones activas.             | No                |
 
 ---
 
@@ -100,6 +114,13 @@
 4. **Sistema de Puntos:**
    - 1 punto por cada $100 CLP en compras superiores a $4,000 CLP.
    - Visualización de puntos acumulados por usuario.
+
+5. **Promociones y Productos HOT:**
+   - Promociones con descuentos por tiempo limitado.
+   - Identificación automática de productos HOT basados en ventas y promociones.
+
+6. **Tareas Programadas (Cron Jobs):**
+   - Actualización automática del estado HOT de los productos cada 24 horas.
 
 ---
 
