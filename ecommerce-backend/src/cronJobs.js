@@ -59,24 +59,42 @@ const recalculateHotProducts = () => {
 };
 
 // Función para verificar bajo stock y emitir alertas
-const checkLowStockCron = (io) => {
-  cron.schedule('*/5 * * * *', async () => {
+const checkLowStockCron = async () => {
+  try {
     console.log('Verificando productos con bajo stock...');
-    try {
-      const lowStockProducts = await prisma.product.findMany({
-        where: {
-          stock: { lte: 5 },
-        },
-      });
+    const lowStockProducts = await prisma.product.findMany({
+      where: { stock: { lt: 5 } },
+    });
 
-      if (lowStockProducts.length > 0) {
-        io.emit('low-stock-alert', lowStockProducts);
-        console.log('Alertas de bajo stock enviadas:', lowStockProducts.map(p => p.name));
+    if (lowStockProducts.length > 0) {
+      const alertMessages = lowStockProducts.map((product) => ({
+        productId: product.id,
+        message: `El producto "${product.name}" tiene bajo stock.`,
+        role: 'admin', // Notificar solo a administradores
+      }));
+
+      for (const alert of alertMessages) {
+        // Verificar si ya existe una alerta para este producto
+        const existingAlert = await prisma.alert.findFirst({
+          where: {
+            message: alert.message,
+            resolved: false, // Solo buscamos alertas no resueltas
+          },
+        });
+
+        if (!existingAlert) {
+          // Crear alerta solo si no existe una alerta similar
+          await prisma.alert.create({
+            data: alert,
+          });
+        }
       }
-    } catch (error) {
-      console.error('Error verificando bajo stock:', error);
+
+      console.log('Alertas de bajo stock verificadas y actualizadas.');
     }
-  });
+  } catch (error) {
+    console.error('Error verificando bajo stock:', error.message);
+  }
 };
 
 // Inicializar tareas programadas

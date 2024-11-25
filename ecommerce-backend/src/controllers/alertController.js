@@ -8,18 +8,12 @@ const prisma = new PrismaClient();
 const getAlerts = async (req, res) => {
   try {
     const alerts = await prisma.alert.findMany({
-      where: {
-        OR: [
-          { role: null }, // Alertas para todos los usuarios
-          { role: req.user.role }, // Alertas específicas según el rol
-        ],
-      },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'desc' }, // Ordenar por las alertas más recientes
     });
 
     res.status(200).json({ alerts });
   } catch (error) {
-    console.error('Error al obtener alertas:', error);
+    console.error('Error al obtener alertas:', error.message);
     res.status(500).json({ error: 'Error al obtener alertas.' });
   }
 };

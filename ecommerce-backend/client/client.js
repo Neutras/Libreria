@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 
 // Configuración del cliente
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzI1NjAzNTQsImV4cCI6MTczMjU2Mzk1NH0.Z0pHVPrc_j2fQQIEJ-83bPb__pIWUKJbGS3tRqPtnOY'; // Reemplaza con un token válido
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6ImFkbWluIiwiaWF0IjoxNzMyNTY1NzQ3LCJleHAiOjE3MzI1NjkzNDd9.ppE86YIPP2l1aTUb9Pj1d7ULyibdi6uEA18SNdZbsVQ'; // Reemplaza con un token válido
 const socket = io('http://localhost:4000', {
   auth: {
     token, // Enviar el token para autenticación

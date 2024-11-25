@@ -35,6 +35,7 @@ model Product {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   InventoryAlert    InventoryAlert[]
+  Alert             Alert[]
 }
 
 model InventoryAlert {
@@ -81,4 +82,14 @@ model Promotion {
   expiresAt DateTime // Fecha y hora de expiración calculada
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Alert {
+  id        Int      @id @default(autoincrement())
+  productId Int // ID del producto relacionado
+  message   String // Mensaje de la alerta
+  role      String? // Rol destinatario (opcional)
+  resolved  Boolean  @default(false) // Indicador de si fue resuelta
+  createdAt DateTime @default(now()) // Fecha de creación
+  Product   Product  @relation(fields: [productId], references: [id])
 }
