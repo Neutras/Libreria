@@ -70,13 +70,13 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Ver puntos de la cuenta AUTENTICADA
+/**
+ * Obtener puntos del usuario actual.
+ */
 const getUserPoints = async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.id },
-      select: { points: true },
-    });
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado.' });
@@ -84,31 +84,48 @@ const getUserPoints = async (req, res) => {
 
     res.status(200).json({ points: user.points });
   } catch (error) {
-    res.status(500).json({ error: 'Error al consultar los puntos.' });
+    console.error('Error al obtener puntos del usuario:', error.message);
+    res.status(500).json({ error: 'Error al obtener puntos del usuario.' });
   }
 };
 
-// Ver puntos de usuario
+/**
+ * Obtener puntos de un usuario específico (solo para administradores).
+ */
 const getUserPointsByAdmin = async (req, res) => {
-  const { userId } = req.params;
+  const { id } = req.params;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: Number(userId) },
-      select: { id: true, name: true, points: true },
-    });
+    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
 
     if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
     }
 
-    return res.status(200).json({
-      message: "Puntos del usuario obtenidos exitosamente",
-      userPoints: user.points,
-    });
+    res.status(200).json({ points: user.points });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error al obtener los puntos del usuario" });
+    console.error('Error al obtener puntos del usuario por admin:', error.message);
+    res.status(500).json({ error: 'Error al obtener puntos del usuario.' });
+  }
+};
+
+/**
+ * Actualizar puntos del usuario (por eventos del sistema).
+ */
+const updateUserPoints = async (userId, points, operation = 'increment') => {
+  try {
+    const updateData =
+      operation === 'increment' ? { increment: points } : { decrement: points };
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { points: updateData },
+    });
+
+    return updatedUser;
+  } catch (error) {
+    console.error('Error al actualizar puntos del usuario:', error.message);
+    throw new Error('Error al actualizar puntos del usuario.');
   }
 };
 
@@ -117,5 +134,6 @@ module.exports = {
   registerUser,
   loginUser,
   getUserPoints,
-  getUserPointsByAdmin
+  getUserPointsByAdmin,
+  updateUserPoints
 };

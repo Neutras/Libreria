@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 
 // Configuración del cliente
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6ImFkbWluIiwiaWF0IjoxNzMyNTY1NzQ3LCJleHAiOjE3MzI1NjkzNDd9.ppE86YIPP2l1aTUb9Pj1d7ULyibdi6uEA18SNdZbsVQ'; // Reemplaza con un token válido
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwLCJyb2xlIjoidXNlciIsImlhdCI6MTczMjY3Mjk4NSwiZXhwIjoxNzMyNjc2NTg1fQ.j9szaxsXPQTTOgVbPU4Li_6U1Ta0bg6SU9XEJbL0RRk'; // Reemplaza con un token válido
 const socket = io('http://localhost:4000', {
   auth: {
     token, // Enviar el token para autenticación
@@ -25,6 +25,11 @@ socket.on('notification', (data) => {
 // Notificación específica: Pedido creado
 socket.on('order-created', (data) => {
   console.log(`[Socket.IO] Notificación de pedido creado: ${data.message}`);
+});
+
+// Notificación específica: Pedido creado
+socket.on('order-canceled', (data) => {
+  console.log(`[Socket.IO] Notificación de pedido cancelado: ${data.message}`);
 });
 
 // Notificación específica: Nuevo pedido para administradores

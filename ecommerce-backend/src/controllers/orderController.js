@@ -33,12 +33,16 @@ const createOrder = async (req, res) => {
       return sum + product.price * item.quantity;
     }, Promise.resolve(0));
 
+    // Calcular puntos
+    const points = Math.floor(total / 100);
+
     // Crear el pedido
     const order = await prisma.order.create({
       data: {
         userId,
         status: 'Pending',
         total,
+        points,
         products: {
           create: products.map((item) => ({
             productId: item.productId,
@@ -49,15 +53,20 @@ const createOrder = async (req, res) => {
       include: { products: true },
     });
 
-    // Notificación al usuario
+    // Asignar puntos al usuario
+    await prisma.user.update({
+      where: { id: userId },
+      data: { points: { increment: points } },
+    });
+
+    // Notificaciones
     emitToUser(userId, 'order-created', {
-      message: `Pedido creado exitosamente con ID ${order.id}`,
+      message: `Pedido creado exitosamente con ID ${order.id}. Has ganado ${points} puntos.`,
       order,
     });
 
-    // Notificación a los administradores
     emitToRole('admin', 'new-order', {
-      message: `Un nuevo pedido ha sido creado por el usuario ${userId}`,
+      message: `Un nuevo pedido ha sido creado por el usuario ${userId}.`,
       order,
     });
 
@@ -67,7 +76,6 @@ const createOrder = async (req, res) => {
     res.status(500).json({ error: 'Error al crear el pedido.' });
   }
 };
-
 
 /**
  * Cancelar un pedido.
@@ -81,12 +89,8 @@ const cancelOrder = async (req, res) => {
       include: { products: true },
     });
 
-    if (!order || order.status === 'Canceled') {
-      return res.status(400).json({ error: 'El pedido no existe o ya está cancelado.' });
-    }
-
-    if (order.status !== 'Pending') {
-      return res.status(400).json({ error: 'Solo se pueden cancelar pedidos con estado Pending.' });
+    if (!order || order.status !== 'Pending') {
+      return res.status(400).json({ error: 'El pedido no existe o no puede ser cancelado.' });
     }
 
     // Restaurar stock de los productos
@@ -98,19 +102,24 @@ const cancelOrder = async (req, res) => {
     );
     await Promise.all(productUpdates);
 
+    // Descontar puntos del usuario
+    await prisma.user.update({
+      where: { id: order.userId },
+      data: { points: { decrement: order.points } },
+    });
+
     // Actualizar el estado del pedido
     const updatedOrder = await prisma.order.update({
       where: { id: parseInt(id) },
       data: { status: 'Canceled' },
     });
 
-    // Notificación al usuario
-    req.io.emitToUser(order.userId, 'order-canceled', {
-      message: `Tu pedido con ID ${order.id} ha sido cancelado.`,
+    // Notificaciones
+    emitToUser(order.userId, 'order-canceled', {
+      message: `Tu pedido con ID ${order.id} ha sido cancelado y se han reducido ${order.points} puntos.`,
     });
 
-    // Notificación a los administradores
-    req.io.emitToRole('admin', 'order-canceled', {
+    emitToRole('admin', 'order-canceled', {
       message: `El pedido con ID ${order.id} ha sido cancelado.`,
     });
 
@@ -141,7 +150,7 @@ const updateOrderStatus = async (req, res) => {
     });
 
     // Notificación al usuario
-    req.io.emitToUser(order.userId, 'order-status-updated', {
+    emitToUser(order.userId, 'order-status-updated', {
       message: `El estado de tu pedido con ID ${order.id} ha sido actualizado a ${status}.`,
     });
 

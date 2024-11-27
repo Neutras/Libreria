@@ -23,7 +23,7 @@ const emitToRole = (role, event, payload) => {
 };
 
 module.exports = {
-    setSocketServer,
-    emitToUser,
-    emitToRole,
-  };
+  setSocketServer,
+  emitToUser,
+  emitToRole,
+};

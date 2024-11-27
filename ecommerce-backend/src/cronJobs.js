@@ -77,6 +77,7 @@ const checkLowStockCron = async () => {
         // Verificar si ya existe una alerta para este producto
         const existingAlert = await prisma.alert.findFirst({
           where: {
+            productId: alert.productId,
             message: alert.message,
             resolved: false, // Solo buscamos alertas no resueltas
           },
