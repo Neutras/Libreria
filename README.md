@@ -69,6 +69,8 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 |--------|------------------------|------------------------------------------------|--------------|
 | POST   | `/api/products`        | Crea un nuevo producto.                        | Token (Admin)|
 | GET    | `/api/products`        | Lista todos los productos.                     | No           |
+| GET    | `/api/products&isHot=true`        | Lista usando query params (isHot)                    | No           |
+| GET    | `/api/products&category="general"`        | Lista usando query params (category)                    | No           |
 | GET    | `/api/products/:id`    | Obtiene detalles de un producto específico.    | No           |
 | PUT    | `/api/products/:id`    | Actualiza un producto.                         | Token (Admin)|
 | DELETE | `/api/products/:id`    | Elimina un producto.                           | Token (Admin)|
@@ -97,11 +99,13 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 
 ---
 
-### **Alertas**
+### **Extras**
 
 | Método | Ruta               | Descripción                                 | Autorización |
 |--------|--------------------|---------------------------------------------|--------------|
-| GET    | `/api/alerts`      | Obtiene las alertas de bajo stock.          | Token (Admin)|
+| GET    | `/api/alerts`      | Obtiene un listado de las alertas.          | Token (Admin)|
+| GET    | `/api/users/points`      | Obtiene puntos del usuario autenticado.          | Token |
+| GET    | `/api/:usedId/points`      | Obtiene los puntos del usuario según la ID          | Token (Admin)|
 
 ---
 
@@ -110,6 +114,7 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 Las notificaciones en tiempo real se gestionan mediante `Socket.IO`:
 - **Pedidos:** 
   - Los usuarios reciben notificaciones cuando su pedido es creado o actualizado.
+  - Los usuario reciben notificaciones cuando se suman o descuentan puntos.
   - Los administradores son notificados cuando se crea un nuevo pedido.
 - **Alertas:**
   - Los administradores reciben notificaciones de bajo stock.
