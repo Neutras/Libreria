@@ -1,24 +1,25 @@
 import React from 'react';
+import '../styles/Navbar.css'; // Archivo de estilos específicos
 
 const Navbar = () => {
   const isAuthenticated = false; // Cambiar esto dinámicamente más adelante
 
   return (
-    <nav className="bg-gradient-to-r from-primary to-secondary shadow-lg">
-      <div className="container mx-auto flex justify-between items-center p-4">
-        <h1 className="text-2xl font-bold text-white">📚 Librería</h1>
-        <ul className="flex space-x-6">
-          <li>
-            <a href="/" className="text-white hover:text-gray-200 transition">Inicio</a>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <h1 className="navbar-title">📚 Librería</h1>
+        <ul className="navbar-links">
+          <li className="navbar-item">
+            <a href="/" className="navbar-link">Inicio</a>
           </li>
-          <li>
-            <a href="/productos" className="text-white hover:text-gray-200 transition">Productos</a>
+          <li className="navbar-item">
+            <a href="/productos" className="navbar-link">Productos</a>
           </li>
-          <li>
+          <li className="navbar-item">
             {isAuthenticated ? (
-              <a href="/perfil" className="text-white hover:text-gray-200 transition">Mi Perfil</a>
+              <a href="/perfil" className="navbar-link">Mi Perfil</a>
             ) : (
-              <a href="/login" className="text-white hover:text-gray-200 transition">Iniciar Sesión</a>
+              <a href="/login" className="navbar-link">Iniciar Sesión</a>
             )}
           </li>
         </ul>

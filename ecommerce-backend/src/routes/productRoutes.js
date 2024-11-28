@@ -6,7 +6,8 @@ const {
     getProductById, 
     updateProduct, 
     deleteProduct, 
-    toggleHotStatus 
+    toggleHotStatus,
+    getHotProducts,
 } = require('../controllers/productController');
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.get('/:id', getProductById); // Obtener producto por ID
 router.put('/:id', protect, admin, updateProduct); // Actualizar producto (solo admin)
 router.delete('/:id', protect, admin, deleteProduct); // Eliminar producto (solo admin)
 router.patch('/hot', protect, admin, toggleHotStatus); // Cambiar estado HOT (solo admin)
+
 
 module.exports = router;

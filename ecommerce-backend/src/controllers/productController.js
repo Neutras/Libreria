@@ -25,7 +25,16 @@ const createProduct = async (req, res) => {
 // Listar Productos con Procesamiento
 const getProducts = async (req, res) => {
   try {
+    const { isHot, category, minStock } = req.query;
+
+    // Construir filtros dinámicos basados en query params
+    const where = {};
+    if (isHot !== undefined) where.isHot = isHot === "true";
+    if (category) where.category = category;
+    if (minStock) where.stock = { gte: parseInt(minStock) };
+
     const products = await prisma.product.findMany({
+      where, // Filtros dinámicos
       include: {
         promotions: {
           select: {
