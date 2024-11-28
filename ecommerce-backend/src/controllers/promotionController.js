@@ -32,8 +32,15 @@ const addPromotion = async (req, res) => {
             },
         });
 
+        // Recalcular el estado HOT del producto
+        const isHot = discount >= 20; // Verificar si el descuento cumple el criterio
+        await prisma.product.update({
+            where: { id: productId },
+            data: { isHot },
+        });
+
         return res.status(201).json({
-            message: 'Promoción creada o actualizada exitosamente.',
+            message: 'Promoción creada o actualizada exitosamente y estado HOT actualizado.',
             promotion,
         });
     } catch (error) {

@@ -17,46 +17,54 @@ const createProduct = async (req, res) => {
     });
     res.status(201).json(product);
   } catch (error) {
+    console.error("Error al crear producto:", error.message);
     res.status(500).json({ error: "Error al crear el producto." });
   }
 };
 
-// Listar Productos con Filtros y Paginación
+// Listar Productos con Procesamiento
 const getProducts = async (req, res) => {
   try {
-      // Obtener todos los productos
-      const products = await prisma.product.findMany({
-          include: {
-              promotions: {
-                  select: {
-                      discount: true,
-                      expiresAt: true,
-                  },
-              },
+    const products = await prisma.product.findMany({
+      include: {
+        promotions: {
+          select: {
+            discount: true,
+            expiresAt: true,
           },
-      });
+        },
+      },
+    });
 
-      // Procesar productos para aplicar descuentos
-      const processedProducts = products.map((product) => {
-          const activePromotion = product.promotions.find(
-              (promo) => new Date(promo.expiresAt) > new Date()
-          );
+    const processedProducts = products.map((product) => {
+      const activePromotion = product.promotions.find(
+        (promo) => new Date(promo.expiresAt) > new Date()
+      );
 
-          return {
-              ...product,
-              finalPrice: activePromotion
-                  ? product.price * (1 - activePromotion.discount / 100)
-                  : product.price,
-          };
-      });
+      const discountPercentage = activePromotion ? activePromotion.discount : null;
+      const priceWithDiscount = discountPercentage
+        ? (product.price * (1 - discountPercentage / 100)).toFixed(2)
+        : null;
 
-      return res.status(200).json(processedProducts);
+      return {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        priceWithDiscount,
+        discountPercentage,
+        stock: product.stock,
+        category: product.category,
+        isHot: product.isHot,
+      };
+    });
+
+    res.status(200).json({ products: processedProducts });
   } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Error al obtener productos" });
+    console.error("Error al obtener productos:", error.message);
+    res.status(500).json({ message: "Error al obtener productos." });
   }
 };
-
 
 // Editar Producto
 const updateProduct = async (req, res) => {
@@ -70,6 +78,7 @@ const updateProduct = async (req, res) => {
     });
     res.json(product);
   } catch (error) {
+    console.error("Error al actualizar producto:", error.message);
     res.status(404).json({ error: "Producto no encontrado." });
   }
 };
@@ -82,23 +91,24 @@ const deleteProduct = async (req, res) => {
     await prisma.product.delete({ where: { id: parseInt(id) } });
     res.json({ message: "Producto eliminado exitosamente." });
   } catch (error) {
+    console.error("Error al eliminar producto:", error.message);
     res.status(404).json({ error: "Producto no encontrado." });
   }
 };
 
-
+// Cambiar Estado HOT de Producto
 const toggleHotStatus = async (req, res) => {
   try {
     const { productId } = req.body;
 
     if (!productId) {
-      return res.status(400).json({ message: 'Se necesita la ID del producto.' });
+      return res.status(400).json({ message: "Se necesita la ID del producto." });
     }
 
     const product = await prisma.product.findUnique({ where: { id: productId } });
 
     if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado.' });
+      return res.status(404).json({ message: "Producto no encontrado." });
     }
 
     const updatedProduct = await prisma.product.update({
@@ -106,54 +116,51 @@ const toggleHotStatus = async (req, res) => {
       data: { isHot: !product.isHot },
     });
 
-    res.status(200).json({ message: 'Se actualizó el estado Hot.', product: updatedProduct });
+    res.status(200).json({ message: "Estado HOT actualizado.", product: updatedProduct });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error toggling hot status.' });
+    console.error("Error al cambiar estado HOT:", error.message);
+    res.status(500).json({ message: "Error al cambiar estado HOT." });
   }
 };
 
-// Obtener producto por ID
+// Obtener Producto por ID
 const getProductById = async (req, res) => {
-  const { id } = req.params; // Obtener el ID de los parámetros de la URL
+  const { id } = req.params;
 
   try {
-      const product = await prisma.product.findUnique({
-          where: {
-              id: parseInt(id), // Convertir el ID a número entero
-          },
-          include: {
-              promotions: true, // Incluir promociones relacionadas, si existen
-          },
-      });
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(id) },
+      include: { promotions: true },
+    });
 
-      if (!product) {
-          return res.status(404).json({ message: 'Producto no encontrado.' });
-      }
+    if (!product) {
+      return res.status(404).json({ message: "Producto no encontrado." });
+    }
 
-      // Verificar si el producto tiene una promoción activa y ajustar el precio
-      if (product.promotions && product.promotions.length > 0) {
-          const activePromotion = product.promotions.find(
-              (promo) => new Date(promo.expiresAt) > new Date() // La promoción está activa
-          );
+    const activePromotion = product.promotions.find(
+      (promo) => new Date(promo.expiresAt) > new Date()
+    );
 
-          if (activePromotion) {
-              product.priceWithDiscount = product.price * (1 - activePromotion.discount / 100);
-          }
-      }
+    const priceWithDiscount = activePromotion
+      ? (product.price * (1 - activePromotion.discount / 100)).toFixed(2)
+      : null;
 
-      res.status(200).json(product);
+    res.status(200).json({
+      ...product,
+      priceWithDiscount,
+      discountPercentage: activePromotion ? activePromotion.discount : null,
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error al obtener el producto.' });
+    console.error("Error al obtener producto:", error.message);
+    res.status(500).json({ message: "Error al obtener producto." });
   }
 };
 
-module.exports = { 
-  createProduct, 
-  getProducts, 
-  getProductById, 
-  updateProduct, 
-  deleteProduct, 
-  toggleHotStatus 
+module.exports = {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  toggleHotStatus,
 };
