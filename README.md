@@ -69,8 +69,9 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 |--------|------------------------|------------------------------------------------|--------------|
 | POST   | `/api/products`        | Crea un nuevo producto.                        | Token (Admin)|
 | GET    | `/api/products`        | Lista todos los productos.                     | No           |
-| GET    | `/api/products&isHot=true`        | Lista usando query params (isHot)                    | No           |
-| GET    | `/api/products&category="general"`        | Lista usando query params (category)                    | No           |
+| GET    | `/api/products&isHot=true`        | Lista productos usando query params                    | No           |
+| GET    | `/api/products/recommendations`    | Obtiene recomendaciones basadas en el historial de compra o productos destacados.    | Token           |
+| GET    | `/api/products/:id`    | Obtiene detalles de un producto específico.    | No           |
 | GET    | `/api/products/:id`    | Obtiene detalles de un producto específico.    | No           |
 | PUT    | `/api/products/:id`    | Actualiza un producto.                         | Token (Admin)|
 | DELETE | `/api/products/:id`    | Elimina un producto.                           | Token (Admin)|
@@ -142,8 +143,11 @@ Las notificaciones en tiempo real se gestionan mediante `Socket.IO`:
 5. **Sistema de Promociones:**
    - Promociones con condiciones específicas.
    - Gestión automática de promociones expiradas.
+  
+6. **Sistema de Recomendaciones:**
+   - Generación de recomendaciones basadas en el historial de compra del usuario autenticado, si el usuario no tiene un historial de compra recibirá como recomendaciones productos destacados (isHot).
 
-6. **Sistema de Puntos:**
+7. **Sistema de Puntos:**
    - Acumulación de puntos por compras mayores a $4,000 CLP.
 
 ---
