@@ -22,20 +22,21 @@ model User {
 
 // Modelo para Productos
 model Product {
-  id                Int              @id @default(autoincrement())
-  name              String
-  description       String
-  price             Float
-  stock             Int              @default(0)
-  lowStockThreshold Int              @default(5) // Límite de stock bajo
-  category          String
-  isHot             Boolean          @default(false)
-  orders            OrderProduct[]
-  promotions        Promotion[]
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  InventoryAlert    InventoryAlert[]
-  Alert             Alert[]
+  id                  Int             @id @default(autoincrement())
+  name                String
+  description         String
+  price               Float
+  stock               Int             @default(0)
+  lowStockThreshold  Int             @default(5) 
+  category            String
+  isHot               Boolean          @default(false)
+  orders              OrderProduct[]
+  promotions          Promotion[]
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  InventoryAlert      InventoryAlert[]
+  Alert               Alert[]
+  author              String
 }
 
 model InventoryAlert {
