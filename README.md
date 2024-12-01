@@ -69,6 +69,9 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 |--------|------------------------|------------------------------------------------|--------------|
 | POST   | `/api/products`        | Crea un nuevo producto.                        | Token (Admin)|
 | GET    | `/api/products`        | Lista todos los productos.                     | No           |
+| GET    | `/api/products&isHot=true`        | Lista productos usando query params                    | No           |
+| GET    | `/api/products/recommendations`    | Obtiene recomendaciones basadas en el historial de compra o productos destacados.    | Token           |
+| GET    | `/api/products/:id`    | Obtiene detalles de un producto específico.    | No           |
 | GET    | `/api/products/:id`    | Obtiene detalles de un producto específico.    | No           |
 | PUT    | `/api/products/:id`    | Actualiza un producto.                         | Token (Admin)|
 | DELETE | `/api/products/:id`    | Elimina un producto.                           | Token (Admin)|
@@ -97,11 +100,13 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 
 ---
 
-### **Alertas**
+### **Extras**
 
 | Método | Ruta               | Descripción                                 | Autorización |
 |--------|--------------------|---------------------------------------------|--------------|
-| GET    | `/api/alerts`      | Obtiene las alertas de bajo stock.          | Token (Admin)|
+| GET    | `/api/alerts`      | Obtiene un listado de las alertas.          | Token (Admin)|
+| GET    | `/api/users/points`      | Obtiene puntos del usuario autenticado.          | Token |
+| GET    | `/api/:usedId/points`      | Obtiene los puntos del usuario según la ID          | Token (Admin)|
 
 ---
 
@@ -110,6 +115,7 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 Las notificaciones en tiempo real se gestionan mediante `Socket.IO`:
 - **Pedidos:** 
   - Los usuarios reciben notificaciones cuando su pedido es creado o actualizado.
+  - Los usuario reciben notificaciones cuando se suman o descuentan puntos.
   - Los administradores son notificados cuando se crea un nuevo pedido.
 - **Alertas:**
   - Los administradores reciben notificaciones de bajo stock.
@@ -137,8 +143,11 @@ Las notificaciones en tiempo real se gestionan mediante `Socket.IO`:
 5. **Sistema de Promociones:**
    - Promociones con condiciones específicas.
    - Gestión automática de promociones expiradas.
+  
+6. **Sistema de Recomendaciones:**
+   - Generación de recomendaciones basadas en el historial de compra del usuario autenticado, si el usuario no tiene un historial de compra recibirá como recomendaciones productos destacados (isHot).
 
-6. **Sistema de Puntos:**
+7. **Sistema de Puntos:**
    - Acumulación de puntos por compras mayores a $4,000 CLP.
 
 ---
