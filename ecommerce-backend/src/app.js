@@ -11,6 +11,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
 const { initializeCronJobs } = require('./cronJobs');
 const alertRoutes = require('./routes/alertRoutes');
+const metricRoutes = require('./routes/metricRoutes');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/metrics', metricRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
