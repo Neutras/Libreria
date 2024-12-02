@@ -100,6 +100,18 @@ Este es el backend del sistema de E-Commerce desarrollado con Node.js, Express, 
 
 ---
 
+### **Métricas**
+
+| Método | Ruta                             | Descripción                                        | Autorización       |
+|--------|----------------------------------|----------------------------------------------------|--------------------|
+| GET    | `/api/metrics`                   | Devuelve un resumen general de todas las métricas del sistema. Incluye productos más vendidos, categorías más vendidas, ingresos por período y clientes más activos. | Token (Admin)      |
+| GET    | `/api/metrics/top-products`      | Devuelve los productos más vendidos, incluyendo la cantidad total vendida y los ingresos generados por cada uno. | Token (Admin)      |
+| GET    | `/api/metrics/top-categories`    | Devuelve las categorías más vendidas, mostrando la cantidad total vendida y los ingresos generados por cada categoría. | Token (Admin)      |
+| GET    | `/api/metrics/revenue?period=week` | Calcula los ingresos totales generados en un período específico (día, semana o mes), basándose en las órdenes con estado "Completed". | Token (Admin)      |
+| GET    | `/api/metrics/active-customers`  | Devuelve la lista de los clientes más activos, clasificados por la cantidad de pedidos realizados. | Token (Admin)      |
+
+---
+
 ### **Extras**
 
 | Método | Ruta               | Descripción                                 | Autorización |
