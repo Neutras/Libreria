@@ -117,36 +117,3 @@
     }
   }
 }
-
-// Modal de Autenticación
-.auth-modal {
-  .modal-content {
-    background-color: $light;
-    padding: 2rem;
-    border-radius: 10px;
-  }
-}
-
-// Botón Carrito (Con Badge)
-.cart-badge {
-  position: relative;
-  font-size: 1.2rem;
-
-  .badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: $error;
-    font-size: 0.8rem;
-    font-weight: bold;
-  }
-}
-
-// Animaciones de Hover para los enlaces
-.navbar-nav .btn {
-  transition: transform 0.3s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
-}

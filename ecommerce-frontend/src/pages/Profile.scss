@@ -1,0 +1,199 @@
+@import "../styles/custom.scss";
+
+// General styling for the profile container
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    background-color: $neutral;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .profile-container h2 {
+    text-align: center;
+    color: $primary;
+    margin-bottom: 20px;
+  }
+  
+  .alert {
+    background-color: $error;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+  
+  // User Info Styling
+  .user-info {
+    background-color: $light;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-info-header {
+    margin-bottom: 15px;
+  
+    p {
+      font-size: 1.1rem;
+      color: $text;
+      margin-bottom: 10px;
+  
+      strong {
+        color: $primary;
+      }
+    }
+  }
+  
+  .user-info Button {
+    background-color: $secondary;
+    color: $text;
+    font-size: 1rem;
+    border-radius: 5px;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: $primary;
+      color: #fff;
+    }
+  }
+  
+  // Orders Section Styling
+  .orders-section {
+    background-color: $light;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .orders-section h3 {
+    color: $primary;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .table th,
+  .table td {
+    padding: 12px;
+    text-align: center;
+    font-size: 1rem;
+    vertical-align: middle;
+  }
+  
+  .table th {
+    background-color: $primary;
+    color: #fff;
+  }
+  
+  .table-striped tbody tr:nth-child(odd) {
+    background-color: $extra;
+  }
+  
+  .table tbody tr:hover {
+    background-color: $light;
+    cursor: pointer;
+  }
+  
+  .table .btn-secondary {
+    background-color: $secondary;
+    color: #fff;
+    border: none;
+    transition: all 0.3s ease;
+  
+    &:hover {
+      background-color: $primary;
+      color: #fff;
+    }
+  }
+  
+  .table .progress {
+    height: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+  }
+  
+  .progress-bar {
+    transition: width 0.5s ease-in-out;
+  }
+  
+  // Order Details Styling
+  .order-detail {
+    background-color: $extra;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  
+    h4 {
+      color: $primary;
+      margin-bottom: 15px;
+    }
+  
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      color: $text;
+  
+      strong {
+        color: $primary;
+      }
+    }
+  
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      
+      li {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+      }
+    }
+  }
+  
+  // Loading Text
+  .loading-text {
+    font-size: 1.5rem;
+    color: $text;
+    text-align: center;
+    margin-top: 50px;
+    animation: loadingPulse 2s infinite ease-in-out;
+  }
+  
+  @keyframes loadingPulse {
+    0% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.5;
+    }
+  }
+  
+  // Button Styles (Canje de puntos)
+  .btn-info {
+    background-color: $secondary;
+    color: $text;
+    padding: 10px 30px;
+    border-radius: 5px;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+  
+    &:hover {
+      background-color: $primary;
+      color: #fff;
+    }
+  }

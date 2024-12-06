@@ -3,6 +3,7 @@ import axios from 'axios';
 const API_URL = 'http://localhost:4000/api/users';
 
 class AuthService {
+  // Login
   async login(credentials) {
     try {
       const response = await axios.post(`${API_URL}/login`, credentials);
@@ -14,6 +15,7 @@ class AuthService {
     }
   }
 
+  // Registro
   async register(userData) {
     try {
       const response = await axios.post(`${API_URL}/register`, userData);
@@ -23,6 +25,27 @@ class AuthService {
       console.error('Error en register:', error.response?.data || error.message);
       return false;
     }
+  }
+
+  // Obtener puntos del usuario autenticado
+  async getUserPoints() {
+    try {
+      const token = this.getToken();
+      const response = await axios.get("http://localhost:4000/api/users/points", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;  // { points: number }
+    } catch (error) {
+      console.error("Error al obtener los puntos del usuario", error);
+      throw error;
+    }
+  }
+
+  // Obtener datos del usuario desde el token
+  getUserData() {
+    const token = this.getToken();
+    const decoded = this.parseJwt(token);
+    return decoded ? { email: decoded.email, name: decoded.name } : null;
   }
 
   setToken(token) {
@@ -66,10 +89,6 @@ class AuthService {
     const token = this.getToken();
     const decoded = this.parseJwt(token);
     return decoded ? decoded.role : null;
-  }
-
-  isAuthorized() {
-    return this.isAuthenticated();
   }
 
   logout() {

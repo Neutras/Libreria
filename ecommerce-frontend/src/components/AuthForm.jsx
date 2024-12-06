@@ -3,12 +3,8 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Button from "./Button";
 import TermsModal from "./TermsModal";
-import {
-  validateEmail,
-  validatePassword,
-  validateName,
-} from "../utils/validation";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { validateEmail, validatePassword, validateName } from "../utils/validation";
+import ToastNotification from "./ToastNotification";  // Asegúrate de tener este componente para los toasts
 import "./AuthForm.scss";
 
 const AuthForm = ({ type, onSubmit, globalError }) => {
@@ -22,6 +18,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");  // Para mostrar el mensaje del toast
 
   const handlePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -60,7 +57,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
     try {
       await onSubmit(data, setErrors);
       if (type === "register") {
-        alert("Registro exitoso. Ahora puedes iniciar sesión.");
+        setToastMessage("Registro exitoso. Ahora puedes iniciar sesión.");
       }
     } catch (error) {
       setErrors((prev) => ({
@@ -81,9 +78,11 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
           <h2>{type === "login" ? "Iniciar sesión" : "Registrarse"}</h2>
         </div>
 
-        {globalError && (
-          <div className="alert alert-danger text-center">{globalError}</div>
-        )}
+        {/* Mostrar el toast de éxito si es necesario */}
+        {toastMessage && <ToastNotification message={toastMessage} show={true} onClose={() => setToastMessage("")} />}
+
+        {/* Global error */}
+        {globalError && <div className="alert alert-danger text-center">{globalError}</div>}
 
         <form onSubmit={handleSubmit}>
           {type === "register" && (
@@ -94,9 +93,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
               <input
                 type="text"
                 id="name"
-                className={`form-control ${
-                  errors.name ? "is-invalid" : name ? "is-valid" : ""
-                }`}
+                className={`form-control ${errors.name ? "is-invalid" : name ? "is-valid" : ""}`}
                 placeholder="Ingresa tu nombre"
                 value={name}
                 onChange={(e) => {
@@ -122,9 +119,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
             <input
               type="email"
               id="email"
-              className={`form-control ${
-                errors.email ? "is-invalid" : email ? "is-valid" : ""
-              }`}
+              className={`form-control ${errors.email ? "is-invalid" : email ? "is-valid" : ""}`}
               placeholder="Ingresa tu email"
               value={email}
               onChange={(e) => {
@@ -150,9 +145,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                className={`form-control ${
-                  errors.password ? "is-invalid" : password ? "is-valid" : ""
-                }`}
+                className={`form-control ${errors.password ? "is-invalid" : password ? "is-valid" : ""}`}
                 placeholder="Ingresa tu contraseña"
                 value={password}
                 onChange={(e) => {
@@ -176,9 +169,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
                 <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
               </button>
             </div>
-            {errors.password && (
-              <div className="invalid-feedback">{errors.password}</div>
-            )}
+            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
           </div>
 
           {type === "register" && (
@@ -189,13 +180,7 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
               <input
                 type="password"
                 id="confirmPassword"
-                className={`form-control ${
-                  errors.confirmPassword
-                    ? "is-invalid"
-                    : confirmPassword
-                    ? "is-valid"
-                    : ""
-                }`}
+                className={`form-control ${errors.confirmPassword ? "is-invalid" : confirmPassword ? "is-valid" : ""}`}
                 placeholder="Confirma tu contraseña"
                 value={confirmPassword}
                 onChange={(e) => {
@@ -210,47 +195,32 @@ const AuthForm = ({ type, onSubmit, globalError }) => {
                   }
                 }}
               />
-              {errors.confirmPassword && (
-                <div className="invalid-feedback">{errors.confirmPassword}</div>
-              )}
+              {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
             </div>
           )}
 
           {type === "register" && (
             <div className="form-group form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="terms"
-              checked={termsAccepted}
-              onChange={(e) => setTermsAccepted(e.target.checked)}
-            />
-            <label className="form-check-label" htmlFor="terms">
-              Acepto los{" "}
-              <button
-                type="button"
-                className="btn btn-link p-0"
-                onClick={toggleModal}
-              >
-                términos y condiciones
-              </button>
-            </label>
-            {errors.terms && <div className="invalid-feedback">{errors.terms}</div>}
-          </div>
-          
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="terms"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+              />
+              <label className="form-check-label" htmlFor="terms">
+                Acepto los{" "}
+                <button type="button" className="btn btn-link p-0" onClick={toggleModal}>
+                  términos y condiciones
+                </button>
+              </label>
+              {errors.terms && <div className="invalid-feedback">{errors.terms}</div>}
+            </div>
           )}
 
-          <Button
-            type="submit"
-            className="btn btn-primary w-100"
-            disabled={loading}
-          >
+          <Button type="submit" className="btn btn-primary w-100" disabled={loading}>
             {loading ? (
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             ) : type === "login" ? (
               "Iniciar sesión"
             ) : (

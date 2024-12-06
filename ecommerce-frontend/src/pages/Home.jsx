@@ -24,7 +24,7 @@ const Home = () => {
     recommendations: true,
   });
 
-  const isAuthenticated = authService.isAuthorized();
+  const isAuthenticated = authService.isAuthenticated();
 
   useEffect(() => {
     const loadHotProducts = async () => {

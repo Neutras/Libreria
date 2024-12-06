@@ -11,8 +11,24 @@ const AuthSuggestionModal = ({ show, onClose }) => {
   useEffect(() => {
     if (show) {
       const modalElement = modalRef.current;
-      const modalInstance = new bootstrap.Modal(modalElement); // Crear nueva instancia de Bootstrap Modal
+      const modalInstance = new bootstrap.Modal(modalElement, {
+        backdrop: 'false', // Esto desactiva el fondo opaco
+        keyboard: true, // Esto permite cerrar el modal con la tecla ESC
+      });
       modalInstance.show(); // Mostrar el modal
+
+      // Evento para cerrar modal al presionar ESC
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+
+      // Cleanup del event listener
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     }
   }, [show]); // Cuando 'show' cambie, ejecutamos este efecto
 
@@ -36,7 +52,7 @@ const AuthSuggestionModal = ({ show, onClose }) => {
   return (
     <div
       ref={modalRef}
-      className="modal fade"
+      className="modal"
       id="authSuggestionModal"
       tabIndex="-1"
       aria-labelledby="authSuggestionModalLabel"

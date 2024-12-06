@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import "./ToastNotification.scss";
+import React, { useEffect, useState } from "react";
+import "./ToastNotification.scss";  // Asegúrate de tener los estilos
 
 const ToastNotification = ({ message, show, onClose }) => {
   const [isVisible, setIsVisible] = useState(show);
@@ -9,35 +9,32 @@ const ToastNotification = ({ message, show, onClose }) => {
       setIsVisible(true);
       setTimeout(() => {
         setIsVisible(false);
-        onClose(); // Callback para notificar al componente padre que se cerró el toast
+        onClose(); // Llamar al callback para cerrar el toast después de 3 segundos
       }, 3000); // El toast desaparecerá después de 3 segundos
     }
   }, [show, onClose]);
 
   return (
-    <>
-      {isVisible && (
-        <div className="toast-container position-fixed bottom-0 end-0 p-3">
-          <div
-            className="toast align-items-center text-bg-success border-0"
-            role="alert"
-            aria-live="assertive"
-            aria-atomic="true"
-          >
-            <div className="d-flex">
-              <div className="toast-body">{message}</div>
-              <button
-                type="button"
-                className="btn-close btn-close-white me-2 m-auto"
-                data-bs-dismiss="toast"
-                aria-label="Cerrar"
-                onClick={() => setIsVisible(false)} // Permite cerrar manualmente
-              ></button>
-            </div>
+    isVisible && (
+      <div className="toast-container position-fixed bottom-0 end-0 p-3">
+        <div
+          className="toast align-items-center text-bg-success border-0"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div className="d-flex">
+            <div className="toast-body">{message}</div>
+            <button
+              type="button"
+              className="btn-close btn-close-white me-2 m-auto"
+              aria-label="Cerrar"
+              onClick={() => setIsVisible(false)}
+            ></button>
           </div>
         </div>
-      )}
-    </>
+      </div>
+    )
   );
 };
 

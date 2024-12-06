@@ -37,6 +37,7 @@ const Navbar = () => {
     setUserAuthenticated(false);
     setUserRole("");
     clearCart(); // Limpiar carrito al cerrar sesión
+    navigate("/login"); // Redirigir al login después de cerrar sesión
   };
 
   const handleViewCart = () => {
@@ -53,9 +54,9 @@ const Navbar = () => {
     <nav className="navbar navbar-custom">
       <div className="container-fluid">
         {/* Logo con imagen */}
-        <Link className="navbar-brand d-flex align-items-center" to="/home">
+        <Link className="navbar-brand d-flex align-items-center" to="/">
           <img
-            src='../../public/libreriasanjavier.jpg' // Asegúrate de tener la imagen en public/
+            src='/libreriasanjavier.jpg' // Asegúrate de tener la imagen en public/
             alt="Logo"
             className="navbar-logo"
           />

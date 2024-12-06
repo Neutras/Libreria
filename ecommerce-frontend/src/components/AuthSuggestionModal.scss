@@ -1,9 +1,16 @@
 @import '../styles/custom.scss';
 
 #authSuggestionModal {
+
+  .modal-backdrop {
+    z-index: 1040 !important; // Aseguramos que la capa de fondo esté por debajo del modal
+  }
+
   .modal-content {
     background-color: $card; // Fondo claro para contraste
     color: $text; // Texto oscuro
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     .modal-header {
       background-color: $primary; // Azul Marino
