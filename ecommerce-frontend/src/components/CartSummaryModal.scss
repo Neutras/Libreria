@@ -1,0 +1,44 @@
+@import '../styles/custom.scss';
+
+#cartSummaryModal {
+  .modal-content {
+    background-color: $card; // Fondo claro para el carrito
+    color: $text; // Texto oscuro
+
+    .modal-header {
+      background-color: $primary; // Azul Marino
+      color: $light; // Blanco
+      border-bottom: 1px solid lighten($primary, 20%);
+      .btn-close {
+        filter: invert(1); // Invertir color para visibilidad
+      }
+    }
+
+    .modal-body {
+      ul {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+          padding: 0.5rem 0;
+          border-bottom: 1px solid $neutral;
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+
+    .modal-footer {
+      .btn-secondary {
+        background-color: $secondary;
+        border: none;
+
+        &:hover {
+          background-color: darken($secondary, 10%);
+        }
+      }
+    }
+  }
+}

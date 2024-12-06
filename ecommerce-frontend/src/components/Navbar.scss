@@ -1,0 +1,152 @@
+@import '../styles/custom.scss';  // Asegúrate de que custom.scss incluya las variables
+
+.navbar-custom {
+  background-color: $primary;
+  padding: 0.8rem 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    font-size: 1.8rem;
+    color: $secondary;
+    text-decoration: none;
+
+    .navbar-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    span {
+      margin-left: 0.5rem;
+      font-weight: bold;
+      color: $secondary;
+      transition: color 0.3s ease;
+      
+      &:hover {
+        color: $info;
+      }
+    }
+  }
+
+  .navbar-nav {
+    display: flex;
+    align-items: center;
+  }
+
+  // Botón de carrito y otros
+  .btn-outline-info {
+    border-color: $info;
+    color: $info;
+    transition: background-color 0.3s, color 0.3s;
+    padding: 0.6rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    &:hover {
+      background-color: $info;
+      color: $light;
+    }
+  }
+
+  .btn-outline-secondary {
+    border-color: $secondary;
+    color: $secondary;
+    transition: background-color 0.3s, color 0.3s;
+    padding: 0.6rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    &:hover {
+      background-color: $secondary;
+      color: $dark;
+    }
+  }
+
+  .btn-primary {
+    background-color: $secondary;
+    border-color: $secondary;
+    color: $dark;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+      background-color: darken($secondary, 5%);
+      color: $dark;
+    }
+  }
+
+  .btn-danger {
+    background-color: $error;
+    border-color: $error;
+    color: $light;
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    &:hover {
+      background-color: darken($error, 5%);
+      color: $light;
+    }
+  }
+
+  .btn-warning {
+    background-color: $warning;
+    border-color: $warning;
+    color: $dark;
+
+    &:hover {
+      background-color: darken($warning, 5%);
+      color: $dark;
+    }
+  }
+
+  .btn-info {
+    background-color: $info;
+    border-color: $info;
+    color: $light;
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    &:hover {
+      background-color: darken($info, 5%);
+      color: $light;
+    }
+  }
+}
+
+// Modal de Autenticación
+.auth-modal {
+  .modal-content {
+    background-color: $light;
+    padding: 2rem;
+    border-radius: 10px;
+  }
+}
+
+// Botón Carrito (Con Badge)
+.cart-badge {
+  position: relative;
+  font-size: 1.2rem;
+
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: $error;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+}
+
+// Animaciones de Hover para los enlaces
+.navbar-nav .btn {
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}

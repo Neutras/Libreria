@@ -1,0 +1,73 @@
+@import '../styles/custom.scss';
+
+.categories-container {
+  padding: 1rem;
+  background-color: $neutral;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease;
+
+    &.btn-outline-primary {
+      background-color: $primary;
+      color: $light;
+
+      &:hover {
+        background-color: lighten($primary, 10%);
+        color: $light;
+      }
+
+      &.active {
+        background-color: $secondary;
+        color: $dark;
+        border-color: darken($secondary, 10%);
+      }
+    }
+
+    &.btn-outline-danger {
+      background-color: $error;
+      color: $light;
+
+      &:hover {
+        background-color: lighten($error, 10%);
+        color: $light;
+      }
+    }
+  }
+
+  // Alineación del botón de reinicio al lado derecho
+  .reset-filters {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -10px; // Reduce espacio entre categorías y botón
+    margin-bottom: 10px;
+
+    .btn {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  .categories-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  // Responsivo
+  @media (max-width: 768px) {
+    .reset-filters {
+      justify-content: center;
+    }
+
+    .categories-list {
+      gap: 0.5rem;
+    }
+  }
+}

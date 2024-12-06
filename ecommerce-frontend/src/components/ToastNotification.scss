@@ -1,0 +1,19 @@
+@import '../styles/custom.scss';
+
+.toast-container {
+  z-index: 1055; // Asegurar que esté encima de otros elementos
+}
+
+.toast {
+  background-color: $success; // Verde para éxito
+  color: $light; // Texto claro
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  .btn-close {
+    filter: invert(1); // Color blanco para la X
+  }
+
+  .toast-body {
+    font-size: 0.9rem;
+  }
+}

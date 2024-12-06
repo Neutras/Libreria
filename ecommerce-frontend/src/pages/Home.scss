@@ -1,0 +1,86 @@
+@import "../styles/custom.scss";
+
+.home-container {
+  padding: 20px;
+
+  .section-title {
+    font-size: 1.6rem;
+    color: $primary;
+    margin-bottom: 15px;
+    text-align: center;
+    position: relative;
+
+    // Adding a decorative underline
+    &::after {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 4px;
+      background: $secondary;
+      margin: 10px auto 0;
+      border-radius: 2px;
+    }
+
+    // Adding an icon before the title
+    &::before {
+      content: "✨";
+      font-size: 1.2rem;
+      position: absolute;
+      top: 0;
+      left: -20px;
+      transform: translateY(-5%);
+      color: $secondary;
+    }
+  }
+
+  .loading-message,
+  .empty-message {
+    font-size: 1rem;
+    color: $text;
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .recommendations-section,
+  .hot-products-section,
+  .categories-section,
+  .products-section {
+    margin-bottom: 10px; // Reduced margin for tighter spacing
+    padding: 10px; // Less padding for a more compact look
+    background-color: $neutral;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .categories-section {
+    .categories-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .section-title {
+      font-size: 1.4rem;
+
+      &::after {
+        width: 50px;
+      }
+    }
+
+    .recommendations-section,
+    .hot-products-section,
+    .categories-section,
+    .products-section {
+      margin-bottom: 15px;
+      padding: 10px;
+    }
+  }
+}

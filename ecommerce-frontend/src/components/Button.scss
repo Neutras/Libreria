@@ -1,0 +1,75 @@
+@import '../styles/_variables';  // Variables globales
+
+.btn {
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  &.btn-primary {
+    background-color: $primary;
+    color: $light;
+    border: none;
+
+    &:hover {
+      background-color: darken($primary, 10%);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: $secondary;
+    color: $dark;
+    border: none;
+
+    &:hover {
+      background-color: darken($secondary, 10%);
+    }
+  }
+
+  &.btn-outline-secondary {
+    background-color: transparent;
+    color: $secondary;
+    border: 2px solid $secondary;
+
+    &:hover {
+      background-color: $secondary;
+      color: $light;
+    }
+  }
+
+  &.btn-warning {
+    background-color: $warning;
+    color: $dark;
+    border: none;
+
+    &:hover {
+      background-color: darken($warning, 10%);
+    }
+  }
+
+  &.btn-info {
+    background-color: $info;
+    color: $light;
+    border: none;
+
+    &:hover {
+      background-color: darken($info, 10%);
+    }
+  }
+
+  &.btn-danger {
+    background-color: $error;
+    color: $light;
+    border: none;
+
+    &:hover {
+      background-color: darken($error, 10%);
+    }
+  }
+}

@@ -1,0 +1,213 @@
+// Variables necesarias
+@import '../styles/custom.scss';
+
+.product-grid {
+  // Container spacing
+  padding: 20px;
+
+  // Search and Sort Bar
+  .search-sort-bar {
+    max-width: 800px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    .input-group {
+      flex: 1;
+      min-width: 300px;
+
+      .form-control {
+        border-radius: 0.5rem 0 0 0.5rem;
+        border-color: $primary;
+        font-size: 1rem;
+      }
+
+      .btn {
+        border-radius: 0 0.5rem 0.5rem 0;
+        color: $text;
+        background-color: $primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          background-color: darken($primary, 10%);
+        }
+
+        i {
+          font-size: 1.2rem;
+        }
+      }
+    }
+
+    .dropdown {
+      .btn {
+        background-color: $secondary;
+        color: $text;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+
+        &:hover {
+          background-color: lighten($secondary, 10%);
+        }
+      }
+
+      .dropdown-menu {
+        background-color: $neutral;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+        .dropdown-item {
+          font-size: 0.9rem;
+          color: $text;
+
+          &:hover {
+            background-color: $primary;
+            color: $text;
+          }
+        }
+      }
+    }
+  }
+
+  // Cards
+  .card {
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 300px;
+    margin: 0 auto;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-img-top {
+      border-bottom: 1px solid $neutral;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-body {
+        border-radius: 0%;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+
+      .card-title {
+        font-weight: bold;
+        color: $primary;
+        font-size: 1.2rem;
+      }
+
+      .card-category {
+        font-size: 0.9rem;
+        color: $text;
+        margin-bottom: 0.5rem;
+      }
+
+      .card-text {
+        font-size: 0.9rem;
+
+        .text-decoration-line-through {
+          color: $error;
+        }
+
+        .text-success {
+          font-size: 1rem;
+          font-weight: bold;
+        }
+
+        small {
+          font-size: 0.8rem;
+        }
+      }
+
+      .btn {
+        margin-top: auto;
+        background-color: $secondary;
+        color: $text;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          background-color: lighten($secondary, 10%);
+        }
+
+        i {
+          font-size: 1.2rem;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    .badge {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 0.5rem;
+    }
+  }
+
+  // Toast
+  .toast-container {
+    z-index: 1055; // Ensure it appears above all other components
+  }
+
+  .toast {
+    background-color: $neutral;
+    color: $text;
+    max-width: 400px;
+
+    .toast-header {
+      background-color: $primary;
+      color: $text;
+
+      .btn-close {
+        filter: invert(1);
+      }
+    }
+
+    .toast-body {
+      font-size: 0.9rem;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .search-sort-bar {
+      flex-direction: column;
+      gap: 15px;
+
+      .input-group {
+        min-width: 100%;
+      }
+    }
+
+    .card {
+      .card-body {
+        .btn {
+          font-size: 0.8rem;
+
+          i {
+            color: $text;
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+
+  @media (min-width: 768px) {
+    .row {
+      justify-content: center;
+    }
+  }
+}

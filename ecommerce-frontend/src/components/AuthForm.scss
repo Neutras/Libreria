@@ -1,0 +1,233 @@
+// Colores personalizables
+@import '../styles/custom'; // Asegúrate de que custom.scss incluye las variables y colores
+
+// Contenedor principal
+.auth-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: $neutral;
+  padding: 20px;
+
+  .auth-form-wrapper {
+    width: 100%;
+    max-width: 600px;
+    background-color: $light;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    box-sizing: border-box;
+    
+    .auth-form-header {
+      text-align: center;
+      margin-bottom: 30px;
+
+      h2 {
+        font-size: 2rem;
+        color: $primary;
+        font-weight: bold;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 1rem;
+      color: $dark;
+      font-weight: bold;
+    }
+
+    input.form-control {
+      background-color: $extra; // Fondo ligeramente gris para inputs
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid $extra;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 5px rgba(42, 82, 98, 0.5);
+      }
+
+      &.is-invalid {
+        border-color: $error;
+        background-color: rgba(231, 111, 81, 0.1);
+      }
+
+      &.is-valid {
+        border-color: $success;
+        background-color: rgba(76, 175, 80, 0.1);
+      }
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+
+      input {
+        flex: 1;
+      }
+
+      .btn-outline-secondary {
+        background-color: $primary;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: $secondary;
+        }
+      }
+    }
+
+    .invalid-feedback {
+      color: $error;
+      font-size: 0.875rem;
+    }
+
+    .form-check-label {
+      color: $dark;
+      font-size: 1rem;
+      font-weight: normal;
+      display: inline-block; // Asegura que el texto y el link estén alineados en una sola línea
+    }
+
+    .form-check-input {
+      margin-top: 5px;
+    }
+
+    .btn {
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      transition: background-color 0.3s, transform 0.3s;
+
+      &.btn-primary {
+        background-color: $primary;
+        border: none;
+        color: #fff;
+
+        &:hover {
+          background-color: $secondary;
+          transform: scale(1.05);
+        }
+      }
+
+      &.btn-link {
+        color: $primary;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      &.btn-outline-secondary {
+        border-color: $primary;
+        color: $primary;
+        background-color: transparent;
+
+        &:hover {
+          background-color: $primary;
+          color: #fff;
+        }
+      }
+    }
+
+    .spinner-border {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-width: 4px;
+      margin-right: 10px;
+    }
+
+    .terms-check {
+      font-size: 1rem;
+      margin-top: 10px;
+      display: inline-block; // Asegura que la etiqueta esté en una línea con el checkbox
+    }
+
+    .mt-3 {
+      margin-top: 20px;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .auth-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      a {
+        color: $primary;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+.form-check {
+  display: flex; // Usar flexbox para alinear el checkbox y el texto
+  align-items: center; // Centrar el checkbox y el texto verticalmente
+  margin-top: 10px; // Añadir un pequeño margen arriba
+  flex-wrap: wrap; // En caso de que no quepan en una sola línea, se ajusten
+
+  .form-check-input {
+    margin-right: 10px; // Espacio entre el checkbox y el texto
+    width: 1.2em; // Tamaño ajustado del checkbox
+    height: 1.2em; // Tamaño ajustado del checkbox
+  }
+
+  .form-check-label {
+    font-size: 1rem;
+    color: $text; // Usar el color de texto definido
+    display: flex; // Asegura que el label esté en la misma línea que el checkbox
+    align-items: center; // Centra el texto y el botón
+    cursor: pointer;
+    flex-wrap: nowrap; // Evita que el texto se rompa en varias líneas
+
+    button {
+      color: $primary;
+      padding: 0;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 5px; // Añade un espacio entre el texto y el botón
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .invalid-feedback {
+    display: block;
+    color: $error;
+    font-size: 0.875rem;
+  }
+}
+
+
+// Mobile Responsiveness (No requerido según tu solicitud)
+@media (max-width: 768px) {
+  .auth-form-wrapper {
+    padding: 30px;
+  }
+}
