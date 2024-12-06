@@ -7,7 +7,8 @@ const {
     updateProduct, 
     deleteProduct, 
     toggleHotStatus,
-    getRecommendations
+    getRecommendations,
+    getCategories
 } = require('../controllers/productController');
 
 const router = express.Router();
@@ -20,7 +21,10 @@ router.get('/recommendations', protect, getRecommendations); // Obtener recomend
 router.put('/:id', protect, admin, updateProduct); // Actualizar producto (solo admin)
 router.delete('/:id', protect, admin, deleteProduct); // Eliminar producto (solo admin)
 router.patch('/hot', protect, admin, toggleHotStatus); // Cambiar estado HOT (solo admin)
+router.get("/categories", getCategories); // Obtener categorías únicas
 router.get('/:id', getProductById);
+
+
 
 
 

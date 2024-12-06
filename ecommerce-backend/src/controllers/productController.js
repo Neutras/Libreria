@@ -20,13 +20,14 @@ const createProduct = async (req, res) => {
 // Listar Productos con Procesamiento
 const getProducts = async (req, res) => {
   try {
-    const { isHot, category, minStock } = req.query;
+    const { isHot, category, minStock, name } = req.query;
 
     // Construir filtros dinámicos basados en query params
     const where = {};
     if (isHot !== undefined) where.isHot = isHot === "true";
     if (category) where.category = category;
     if (minStock) where.stock = { gte: parseInt(minStock) };
+    if (name) where.name = { contains: name};
 
     const products = await prisma.product.findMany({
       where, // Filtros dinámicos
@@ -301,6 +302,23 @@ const getRecommendations = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const categories = await prisma.product.findMany({
+      select: {
+        category: true,
+      },
+      distinct: ["category"], // Selecciona categorías únicas
+    });
+
+    const uniqueCategories = categories.map((c) => c.category).filter(Boolean); // Filtrar valores nulos o vacíos
+    res.status(200).json(uniqueCategories);
+  } catch (error) {
+    console.error("Error al obtener categorías:", error.message);
+    res.status(500).json({ message: "Error al obtener categorías." });
+  }
+};
+
 
 module.exports = {
   createProduct,
@@ -310,4 +328,5 @@ module.exports = {
   deleteProduct,
   toggleHotStatus,
   getRecommendations,
+  getCategories,
 };
