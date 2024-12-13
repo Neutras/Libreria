@@ -37,7 +37,6 @@ export const fetchProducts = async (category = null, name = null) => {
   return response.data.products;
 };
 
-
 // Obtener productos recomendados (requiere autenticación)
 export const fetchRecommendations = async () => {
   try {
@@ -50,3 +49,25 @@ export const fetchRecommendations = async () => {
     return []; // Devolver un array vacío en caso de error.
   }
 };
+
+// Procesar imagen para extraer productos
+export const processImage = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  try {
+    const response = await apiClient.post("/images/process", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        ...getAuthHeaders(),
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al procesar la imagen:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Exportar cliente de API y funciones
+export { apiClient };

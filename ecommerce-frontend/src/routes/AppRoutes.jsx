@@ -7,6 +7,7 @@ import Checkout from '../pages/Checkout';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
+import ImageUpload from '../pages/ImageUpload';
 
 const AppRoutes = () => {
   return (
@@ -20,6 +21,7 @@ const AppRoutes = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Profile />} />
+          <Route path="/image-upload" element={<ImageUpload />} />
         </Route>
       </Routes>
     </Router>
