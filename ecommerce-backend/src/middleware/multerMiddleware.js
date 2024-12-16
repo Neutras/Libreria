@@ -2,52 +2,60 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Configuración del almacenamiento de archivos
+// Configuración centralizada
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+// Crear directorio si no existe
+const createUploadDir = () => {
+  const basePath = path.join(__dirname, '../../uploads');
+  const todayFolder = new Date().toISOString().split('T')[0];
+  const fullPath = path.join(basePath, todayFolder);
+
+  if (!fs.existsSync(fullPath)) {
+    fs.mkdirSync(fullPath, { recursive: true });
+  }
+  return fullPath;
+};
+
+// Configuración de almacenamiento
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadBasePath = path.join(__dirname, '../../uploads');
-    const uploadPath = path.join(uploadBasePath, `${new Date().toISOString().split('T')[0]}`);
-    
-    // Crear directorio si no existe
-    fs.mkdirSync(uploadPath, { recursive: true });
+    const uploadPath = createUploadDir();
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+    const timestamp = Date.now();
+    const sanitizedOriginalName = file.originalname.replace(/\s+/g, '-').toLowerCase();
+    const uniqueName = `${timestamp}-${Math.round(Math.random() * 1e9)}-${sanitizedOriginalName}`;
+    cb(null, uniqueName);
   },
 });
 
-// Filtro para validar archivos permitidos
+// Validación de archivo
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = [".jpg", ".jpeg", ".png"];
-  const fileExtension = path.extname(file.originalname).toLowerCase();
-
-  if (allowedExtensions.includes(fileExtension)) {
+  if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('El archivo debe ser una imagen válida (JPG, PNG, etc.).'));
+    cb(new Error('El archivo debe ser una imagen válida (JPG, PNG).'), false);
   }
 };
 
-// Limitar el tamaño del archivo a 5 MB
-const limits = { fileSize: 5 * 1024 * 1024 };
-
-// Middleware Multer configurado
-const upload = multer({ 
-  storage, 
-  fileFilter, 
-  limits,
+// Middleware de Multer
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: MAX_FILE_SIZE },
 });
 
 // Middleware para manejar errores de Multer
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
-    console.error('Error de Multer:', err.message);
-    return res.status(400).json({ error: `Error en la subida del archivo: ${err.message}` });
+    console.error(`Error de Multer: ${err.message}`);
+    return res.status(400).json({ error: `Error de archivo: ${err.message}` });
   } else if (err) {
-    console.error('Error en el middleware de Multer:', err.message);
-    return res.status(500).json({ error: 'Error interno del servidor al manejar el archivo.' });
+    console.error(`Error: ${err.message}`);
+    return res.status(422).json({ error: err.message });
   }
   next();
 };

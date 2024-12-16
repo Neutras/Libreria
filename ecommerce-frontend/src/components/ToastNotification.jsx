@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./ToastNotification.scss";  // Asegúrate de tener los estilos
+import "./ToastNotification.scss";
 
 const ToastNotification = ({ message, show, onClose }) => {
   const [isVisible, setIsVisible] = useState(show);

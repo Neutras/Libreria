@@ -33,6 +33,7 @@ const getProducts = async (req, res) => {
       where, // Filtros dinámicos
       select: { // Seleccionar solo los campos necesarios
         id: true,
+        author: true,
         name: true,
         description: true,
         price: true,
@@ -62,6 +63,7 @@ const getProducts = async (req, res) => {
 
       return {
         id: product.id,
+        author: product.author,
         name: product.name,
         description: product.description,
         price: product.price,

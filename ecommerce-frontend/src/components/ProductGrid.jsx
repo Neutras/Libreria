@@ -1,53 +1,51 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Button from "./Button";
+import { FaSearch, FaTimes, FaCartPlus, FaMinus, FaPlus } from "react-icons/fa";
 import ToastNotification from "./ToastNotification";
 import AuthSuggestionModal from "./AuthSuggestionModal";
-import { useCart } from "../context/CartContext"; // Importar contexto del carrito
+import { useCart } from "../context/CartContext";
 import "./ProductGrid.scss";
 
 const ProductGrid = ({ products = [], fetchProducts }) => {
-  const [currentProducts, setCurrentProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState(""); // Opción de ordenamiento
-  const [selectedProduct, setSelectedProduct] = useState(null); // Producto seleccionado para mostrar en el modal
-  const [toastMessage, setToastMessage] = useState(""); // Mensaje de notificación
-  const [showAuthModal, setShowAuthModal] = useState(false); // Modal de autenticación
+  const [sortOption, setSortOption] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(6);
+  const [addedToCart, setAddedToCart] = useState([]);
+  const [showOnlyOffers, setShowOnlyOffers] = useState(false);
+  const { addToCart, isAuthenticated } = useCart();
 
-  const { addToCart, isAuthenticated } = useCart(); // Obtener funciones del contexto del carrito
+  const [quantities, setQuantities] = useState({});
 
-  // Función de búsqueda
-  const handleSearch = useCallback(
-    async (query) => {
-      if (!query.trim()) {
-        setCurrentProducts(products);
-        return;
-      }
-
-      try {
-        const filteredProducts = await fetchProducts(null, query);
-        setCurrentProducts(filteredProducts);
-      } catch (error) {
-        console.error("Error al buscar productos:", error);
-      }
-    },
-    [fetchProducts, products]
-  );
-
-  // Actualización de búsqueda en tiempo real
+  // Actualizar lista filtrada y paginada
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      handleSearch(searchTerm);
-    }, 300);
+    let filtered = products;
+    if (searchTerm.length >= 3) {
+      const normalize = (str) => str.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+      filtered = products.filter((product) =>
+        normalize(product.name.toLowerCase()).includes(normalize(searchTerm.toLowerCase()))
+      );
+    }
+    if (showOnlyOffers) {
+      filtered = filtered.filter((product) => product.priceWithDiscount);
+    }
+    setFilteredProducts(filtered);
+    setPage(1); // Reiniciar a la primera página después de filtrar
+  }, [products, searchTerm, showOnlyOffers]);
 
-    return () => clearTimeout(delayDebounce); // Cleanup del debounce
-  }, [searchTerm, handleSearch]);
+  // Función de paginación
+  const paginatedProducts = useCallback(() => {
+    const start = (page - 1) * perPage;
+    return filteredProducts.slice(start, start + perPage);
+  }, [filteredProducts, page, perPage]);
 
   // Ordenar productos
   const handleSort = (option) => {
     setSortOption(option);
-
-    let sortedProducts = [...currentProducts];
-
+    let sortedProducts = [...filteredProducts];
     switch (option) {
       case "price-asc":
         sortedProducts.sort((a, b) => a.price - b.price);
@@ -62,38 +60,45 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
         sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
         break;
       default:
-        sortedProducts = products;
         break;
     }
-
-    setCurrentProducts(sortedProducts);
+    setFilteredProducts(sortedProducts);
   };
 
-  // Limpiar búsqueda
-  const clearSearch = () => {
-    setSearchTerm("");
-    setCurrentProducts(products);
-  };
-
-  // Manejo de añadir al carrito
+  // Añadir al carrito
   const handleAddToCart = (product) => {
-    console.log("Handling Add to Cart...");
-    console.log("User Authenticated:", isAuthenticated);
+    const quantity = quantities[product.id] || 1;
 
     if (isAuthenticated) {
-      console.log("Adding product to cart:", product);
-      addToCart(product); // Agregar al carrito
-      setToastMessage(`"${product.name}" se añadió al carrito.`); // Mostrar notificación
+      try {
+        if (quantity > product.stock) {
+          setToastMessage(`Stock insuficiente para \"${product.name}\". Máximo disponible: ${product.stock}.`);
+          return;
+        }
+        addToCart({ ...product, quantity });
+        setToastMessage(`\"${product.name}\" se añadió al carrito (${quantity} unidades).`);
+        setAddedToCart((prev) => [...prev, product.id]);
+        setTimeout(() => setAddedToCart((prev) => prev.filter((id) => id !== product.id)), 2000);
+      } catch (error) {
+        setToastMessage(error.message);
+      }
     } else {
-      console.log("User is not authenticated, showing auth modal.");
-      setSelectedProduct(product); // Establecer producto seleccionado
-      setShowAuthModal(true); // Mostrar modal de autenticación
+      setSelectedProduct(product);
+      setShowAuthModal(true);
     }
+  };
+
+  // Manejo de cantidades
+  const updateQuantity = (id, delta, stock) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: Math.min(Math.max((prev[id] || 1) + delta, 1), stock), // Respetar el stock
+    }));
   };
 
   return (
     <div className="product-grid">
-      {/* Modal de autenticación */}
+      {toastMessage && <ToastNotification message={toastMessage} onClose={() => setToastMessage("")} />}
       {showAuthModal && (
         <AuthSuggestionModal
           show={showAuthModal}
@@ -101,142 +106,146 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
           product={selectedProduct}
           onAddToCart={(product) => {
             addToCart(product);
-            setShowAuthModal(false); // Cerrar el modal después de agregar
-            setToastMessage(`"${product.name}" se añadió al carrito.`);
+            setShowAuthModal(false);
+            setToastMessage(`\"${product.name}\" se añadió al carrito.`);
           }}
         />
       )}
 
-      {/* Notificación de Toast */}
-      {toastMessage && (
-        <ToastNotification
-          message={toastMessage}
-          onClose={() => setToastMessage("")}
-        />
-      )}
-
-      {/* Barra de búsqueda y ordenamiento */}
-      <div className="search-sort-bar mb-3 d-flex justify-content-between align-items-center">
-        {/* Búsqueda */}
-        <div className="input-group">
+      {/* Filtros y Ordenamiento */}
+      <div className="filters-bar mb-3 d-flex justify-content-between align-items-center">
+        <div className="input-group w-50">
           <span className="input-group-text">
-            <i className="bi bi-search"></i>
+            <FaSearch />
           </span>
           <input
             type="text"
-            className="form-control"
             placeholder="Buscar productos..."
+            className="form-control"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           {searchTerm && (
-            <button className="btn btn-outline-secondary" onClick={clearSearch}>
-              <i className="bi bi-x-circle"></i>
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setSearchTerm("")}
+            >
+              <FaTimes />
             </button>
           )}
         </div>
-
-        {/* Ordenamiento */}
-        <div className="dropdown">
-          <button
-            className="btn btn-outline-secondary dropdown-toggle"
-            type="button"
-            id="dropdownSort"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+        <div className="d-flex align-items-center">
+          <label className="me-2">
+            <input
+              type="checkbox"
+              checked={showOnlyOffers}
+              onChange={(e) => setShowOnlyOffers(e.target.checked)}
+            />
+            Mostrar ofertas
+          </label>
+          <select
+            className="form-select ms-3"
+            value={sortOption}
+            onChange={(e) => handleSort(e.target.value)}
           >
-            Ordenar por
-          </button>
-          <ul className="dropdown-menu" aria-labelledby="dropdownSort">
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => handleSort("price-asc")}
-              >
-                Precio: Menor a Mayor
-              </button>
-            </li>
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => handleSort("price-desc")}
-              >
-                Precio: Mayor a Menor
-              </button>
-            </li>
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => handleSort("name-asc")}
-              >
-                Nombre: A-Z
-              </button>
-            </li>
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => handleSort("name-desc")}
-              >
-                Nombre: Z-A
-              </button>
-            </li>
-          </ul>
+            <option value="">Ordenar</option>
+            <option value="price-asc">Precio: Menor a Mayor</option>
+            <option value="price-desc">Precio: Mayor a Menor</option>
+            <option value="name-asc">Nombre: A-Z</option>
+            <option value="name-desc">Nombre: Z-A</option>
+          </select>
         </div>
       </div>
 
-      {/* Productos */}
+      {/* Lista de productos */}
       <div className="row row-cols-1 row-cols-md-3 g-4">
-        {currentProducts.map((product) => (
+        {paginatedProducts().map((product) => (
           <div key={product.id} className="col">
-            <div className="card shadow-sm h-100">
+            <div className="card product-card">
               <div className="position-relative">
                 <img
-                  src={`https://cataas.com/cat/says/${encodeURIComponent(
-                    product.name
-                  )}?fontSize=20&width=300&height=200`}
+                  src={`https://cataas.com/cat/says/${encodeURIComponent(product.name)}?fontSize=20&width=300&height=200`}
                   className="card-img-top"
                   alt={product.name}
+                  title={product.description}
                 />
-                {/* Mostrar oferta solo si hay descuento */}
                 {product.discountPercentage > 0 && (
                   <span className="badge bg-danger position-absolute top-0 end-0 m-2">
-                    ¡Oferta!
+                    ¡Oferta! ({product.discountPercentage.toFixed(2)}%)
                   </span>
                 )}
               </div>
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title text-primary">{product.name}</h5>
-                <p className="card-category text-muted">
-                  Categoría: {product.category}
+              <div className="card-body">
+                <h5 className="card-title">{product.name}</h5>
+                <p className="card-text text-muted mb-1"><b>Marca</b>: {product.author}</p>
+                <p className="card-text text-muted mb-1"><b>Stock</b>: {product.stock} unidades</p>
+                <p className="card-text">
+                  {product.priceWithDiscount ? (
+                    <>
+                      <span className="text-muted text-decoration-line-through">
+                        ${product.price}
+                      </span>
+                      <span className="text-success fw-bold ms-2">
+                        ${product.priceWithDiscount}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-dark fw-bold">${product.price}</span>
+                  )}
                 </p>
-                {product.discountPercentage ? (
-                  <p className="card-text">
-                    <span className="text-muted text-decoration-line-through">
-                      ${product.price}
-                    </span>{" "}
-                    <span className="text-success fw-bold">
-                      ${product.priceWithDiscount}
-                    </span>{" "}
-                    <small className="text-danger">
-                      (-{product.discountPercentage.toFixed(2)}%)
-                    </small>
-                  </p>
-                ) : (
-                  <p className="card-text text-muted">${product.price}</p>
-                )}
-                <small className="text-muted mb-2">
-                  <i>Unidades disponibles: {product.stock}</i>
-                </small>
-                <Button
-                  className="btn btn-secondary mt-auto d-flex align-items-center justify-content-center"
+                <div className="d-flex align-items-center">
+                  <button
+                    className="btn btn-outline-secondary btn-sm me-2"
+                    onClick={() => updateQuantity(product.id, -1, product.stock)}
+                  >
+                    <FaMinus />
+                  </button>
+                  <span>{quantities[product.id] || 1}</span>
+                  <button
+                    className="btn btn-outline-secondary btn-sm ms-2"
+                    onClick={() => updateQuantity(product.id, 1, product.stock)}
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+                <button
+                  className={`btn w-100 mt-3 ${addedToCart.includes(product.id) ? "btn-success" : "btn-primary"}`}
                   onClick={() => handleAddToCart(product)}
+                  disabled={addedToCart.includes(product.id)}
                 >
-                  <i className="bi bi-cart-plus me-2"></i> Añadir al carrito
-                </Button>
+                  {addedToCart.includes(product.id) ? (
+                    <span>
+                      <FaCartPlus /> Añadido
+                    </span>
+                  ) : (
+                    <span>
+                      <FaCartPlus /> Añadir al carrito
+                    </span>
+                  )}
+                </button>
               </div>
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Paginación */}
+      <div className="pagination d-flex justify-content-center mt-4">
+        <button
+          className="btn btn-outline-secondary me-2"
+          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
+          Anterior
+        </button>
+        <span className="align-self-center">Página {page}</span>
+        <button
+          className="btn btn-outline-secondary ms-2"
+          disabled={page * perPage >= filteredProducts.length}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Siguiente
+        </button>
       </div>
     </div>
   );

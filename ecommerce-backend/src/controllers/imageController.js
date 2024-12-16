@@ -19,9 +19,9 @@ const processImage = async (req, res) => {
     // Preprocesar la imagen
     const preprocessedImagePath = await preprocessImage(filePath);
 
-    // Extraer texto de la imagen con Tesseract.js
+    // Extraer texto con Tesseract
     const { data: { text } } = await Tesseract.recognize(preprocessedImagePath, 'spa', {
-      logger: (info) => console.log(info), // Opcional: para depuración
+      logger: (info) => console.log(info), // Para depuración
     });
 
     if (!text.trim()) {
@@ -31,7 +31,7 @@ const processImage = async (req, res) => {
     // Limpiar y estructurar el texto extraído
     const extractedProducts = parseTextToProducts(text);
 
-    // Comparar con la base de datos
+    // Comparar productos con la base de datos
     const { matchedProducts, unmatchedProducts, alternatives } = await matchProductsWithDatabase(extractedProducts);
 
     res.status(200).json({
@@ -49,7 +49,7 @@ const processImage = async (req, res) => {
 };
 
 /**
- * Preprocesar la imagen para mejorar la calidad del OCR.
+ * Preprocesar la imagen con Sharp para mejorar la calidad del OCR.
  */
 const preprocessImage = async (filePath) => {
   const preprocessedPath = path.join(
@@ -60,29 +60,35 @@ const preprocessImage = async (filePath) => {
   await sharp(filePath)
     .grayscale()
     .normalise()
-    .threshold(128) // Binarización de la imagen
+    .threshold(128)
+    .resize({ width: 1200 }) // Ajustar tamaño para mejor OCR
     .toFile(preprocessedPath);
 
   return preprocessedPath;
 };
 
 /**
- * Analiza el texto extraído para estructurarlo como productos con cantidades opcionales.
+ * Analiza el texto extraído y lo estructura en objetos { quantity, name }.
  */
 const parseTextToProducts = (text) => {
   const lines = text
-    .replace(/,/g, '\n') // Convertir listas separadas por comas a líneas
     .split('\n')
-    .map(line => line.trim())
+    .map(line => line.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').trim())
     .filter(line => line);
 
   const products = [];
+  const uniqueNames = new Set(); // Evitar duplicados
+
   lines.forEach((line) => {
-    const match = line.match(/(\d+)?\s?(.+)/); // Extraer cantidad opcional y nombre
+    const match = line.match(/(\d+)?\s?(.+)/); // Extraer cantidad y nombre
     if (match) {
       const quantity = match[1] ? parseInt(match[1], 10) : 1;
-      const name = match[2].trim().toLowerCase(); // Convertir a minúsculas para uniformidad
-      products.push({ quantity, name: normalizeProductName(name) });
+      const name = normalizeProductName(match[2]);
+
+      if (!uniqueNames.has(name)) { // Evitar duplicados
+        products.push({ quantity, name });
+        uniqueNames.add(name);
+      }
     }
   });
 
@@ -90,32 +96,31 @@ const parseTextToProducts = (text) => {
 };
 
 /**
- * Normaliza los nombres de los productos para simplificar las búsquedas.
+ * Normaliza nombres de productos (remueve palabras irrelevantes).
  */
 const normalizeProductName = (name) => {
-  const stopWords = ['de', 'el', 'la', 'cm', 'mm'];
+  const stopWords = ['de', 'el', 'la', 'cm', 'mm', 'color', 'tamaño', 'pack'];
   return name
-    .replace(/\s+/g, ' ') // Eliminar espacios extra
-    .replace(/[.,]/g, '') // Quitar puntuación
+    .toLowerCase()
     .split(' ')
-    .filter(word => !stopWords.includes(word)) // Eliminar palabras irrelevantes
+    .filter(word => !stopWords.includes(word))
     .join(' ')
     .trim();
 };
 
 /**
- * Compara productos extraídos con los disponibles en la base de datos y añade recomendaciones.
+ * Compara productos extraídos con la base de datos y añade recomendaciones.
  */
 const matchProductsWithDatabase = async (extractedProducts) => {
   const matchedProducts = [];
   const unmatchedProducts = [];
   const alternatives = [];
+  const uniqueProductIds = new Set(); // Evitar duplicados
 
   for (const { quantity, name } of extractedProducts) {
-    // Normalizar palabras clave para búsquedas flexibles
     const keywords = name.split(' ');
 
-    // Buscar coincidencias exactas o parciales
+    // Buscar coincidencias en la base de datos
     const product = await prisma.product.findFirst({
       where: {
         OR: keywords.map(keyword => ({
@@ -124,29 +129,30 @@ const matchProductsWithDatabase = async (extractedProducts) => {
       },
     });
 
-    if (product) {
-      // Buscar recomendaciones para productos coincidentes
+    if (product && !uniqueProductIds.has(product.id)) {
+      uniqueProductIds.add(product.id);
+
+      // Buscar recomendaciones
       const recommendations = await prisma.product.findMany({
         where: {
           name: {
             contains: name.split(' ')[0], // Buscar por la primera palabra
             mode: 'insensitive',
           },
-          NOT: {
-            id: product.id, // Excluir el producto ya encontrado
-          },
+          NOT: { id: product.id },
         },
-        take: 5, // Limitar a 5 recomendaciones
+        take: 3,
       });
 
       matchedProducts.push({
+        id: product.id,
         name: product.name,
         quantity,
         price: product.price,
-        recommendations, // Incluir recomendaciones
+        recommendations,
       });
     } else {
-      // Si no se encuentra, buscar alternativas más amplias
+      // Buscar alternativas si no hay coincidencia
       unmatchedProducts.push(name);
       const similarProducts = await prisma.product.findMany({
         where: {
@@ -154,10 +160,12 @@ const matchProductsWithDatabase = async (extractedProducts) => {
             name: { contains: keyword, mode: 'insensitive' },
           })),
         },
-        take: 5,
+        take: 3,
       });
 
-      alternatives.push({ name, suggestions: similarProducts });
+      if (similarProducts.length > 0) {
+        alternatives.push({ name, suggestions: similarProducts });
+      }
     }
   }
 

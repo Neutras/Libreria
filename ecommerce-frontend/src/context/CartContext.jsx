@@ -1,90 +1,128 @@
-// CartContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import cartService from "../services/cartService";
-import authService from "../services/authService"; // Asegurémonos de importar el servicio de autenticación
+import authService from "../services/authService";
+import { toast } from "react-toastify";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(cartService.getCart());  // Usamos el carrito inicial desde el servicio
+  const [cart, setCart] = useState(cartService.getCart());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Sincronizar autenticación y carrito
   useEffect(() => {
-    const userData = authService.isAuthenticated();
-    setIsAuthenticated(!!userData);  // Si está autenticado, actualizamos el estado
+    const syncCartWithServer = async () => {
+      const userData = authService.isAuthenticated();
+      setIsAuthenticated(!!userData);
+
+      if (userData) {
+        try {
+          await cartService.syncCart();
+          setCart(cartService.getCart());
+        } catch (error) {
+          console.error("Error al sincronizar el carrito:", error);
+          toast.error("Hubo un problema al sincronizar tu carrito.");
+        }
+      }
+    };
+
+    syncCartWithServer();
   }, []);
 
-  useEffect(() => {
-    // Actualizamos el carrito cada vez que cambian los productos
-    const updatedCart = cartService.getCart();
-    setCart(updatedCart);  // Sincronizamos con el estado de React
-  }, [cart]);
-
   // Lógica para añadir un producto al carrito
-  const addToCart = (product) => {
-    console.log("Handling Add to Cart...");
-    console.log("User Authenticated:", isAuthenticated);
+  const addToCart = (product, quantity = 1) => {
+    try {
+      // Validación: evitar añadir más de lo permitido por el stock
+      const existingProduct = cart.find((p) => p.id === product.id);
+      const totalQuantity = existingProduct
+        ? existingProduct.quantity + quantity
+        : quantity;
 
-    // Verificar si el producto ya está en el carrito
-    const existingProduct = cart.find((p) => p.id === product.id);
+      if (totalQuantity > product.stock) {
+        toast.error(`Solo hay ${product.stock} unidades disponibles de "${product.name}".`);
+        return;
+      }
 
-    if (existingProduct) {
-      // Verificar que no se exceda el stock
-      if (existingProduct.quantity < product.stock) {
-        // Sumar la cantidad si el producto ya existe en el carrito
-        existingProduct.quantity += 1;
-        setCart([...cartService.getCart()]); // Actualizamos el carrito en el estado
-      } else {
-        console.log("No se puede añadir más productos, stock insuficiente.");
-      }
-    } else {
-      // Si el producto no está en el carrito, lo añadimos
-      if (product.stock > 0) {
-        cartService.addToCart(product); // Agregar el producto al carrito
-        setCart([...cartService.getCart()]); // Actualizamos el carrito en el estado
-      } else {
-        console.log("No hay stock disponible para este producto.");
-      }
+      cartService.addToCart(product, quantity);
+      setCart([...cartService.getCart()]);
+      toast.success(`"${product.name}" añadido al carrito (${quantity} unidades).`);
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message || "No se pudo añadir el producto.");
     }
   };
 
   // Remover producto del carrito
   const removeFromCart = (productId) => {
-    cartService.removeFromCart(productId);  // Remover producto del carrito
-    setCart(cartService.getCart());
+    try {
+      cartService.removeFromCart(productId);
+      setCart(cartService.getCart());
+      toast.info("Producto eliminado del carrito.");
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error.message);
+      toast.error("Hubo un problema al eliminar el producto.");
+    }
   };
 
   // Actualizar la cantidad de un producto en el carrito
   const updateQuantity = (productId, quantity) => {
-    const product = cart.find((p) => p.id === productId);
+    try {
+      const product = cart.find((p) => p.id === productId);
 
-    if (product) {
-      // Asegurarse de que la cantidad no sea menor a 1 ni mayor que el stock
-      if (quantity > 0 && quantity <= product.stock) {
-        cartService.updateQuantity(productId, quantity);  // Actualizar la cantidad
-        setCart(cartService.getCart()); // Actualizar el carrito en el estado
-      } else if (quantity <= 0) {
-        console.log("No puedes establecer una cantidad negativa o cero.");
-      } else {
-        console.log("No hay suficiente stock.");
+      if (!product) {
+        toast.error("Producto no encontrado en el carrito.");
+        return;
       }
+
+      if (quantity > 0 && quantity <= product.stock) {
+        cartService.updateQuantity(productId, quantity);
+        setCart(cartService.getCart());
+        toast.success(`Cantidad de "${product.name}" actualizada a ${quantity}.`);
+      } else if (quantity <= 0) {
+        toast.error("La cantidad debe ser mayor que 0.");
+      } else {
+        toast.error(`Solo hay ${product.stock} unidades disponibles de "${product.name}".`);
+      }
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message || "No se pudo actualizar la cantidad.");
     }
   };
 
   // Limpiar el carrito
   const clearCart = () => {
-    cartService.clearCart();
-    setCart([]);
+    try {
+      cartService.clearCart();
+      setCart([]);
+      toast.info("Carrito limpiado.");
+    } catch (error) {
+      console.error("Error al limpiar el carrito:", error.message);
+      toast.error("Hubo un problema al limpiar el carrito.");
+    }
   };
 
   // Calcular totales (precio y puntos)
-  const calculateTotals = () => cartService.calculateTotals();
+  const calculateTotals = () => {
+    try {
+      return cartService.calculateTotals();
+    } catch (error) {
+      console.error("Error al calcular los totales:", error.message);
+      return { total: 0, points: 0 };
+    }
+  };
 
   // Enviar pedido al backend (finaliza la compra)
   const submitOrder = async () => {
-    const result = await cartService.submitOrder();
-    setCart([]);
-    return result;
+    try {
+      const result = await cartService.submitOrder();
+      setCart([]);
+      toast.success("Pedido enviado con éxito.");
+      return result;
+    } catch (error) {
+      console.error("Error al enviar el pedido:", error.message);
+      toast.error("Hubo un problema al enviar tu pedido.");
+      throw error;
+    }
   };
 
   return (

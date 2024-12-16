@@ -1,49 +1,62 @@
-@import '../styles/custom.scss';
+@import "../styles/custom.scss";
 
-#authSuggestionModal {
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040; // Asegura el fondo opaco detrás del modal
+}
 
-  .modal-backdrop {
-    z-index: 1040 !important; // Aseguramos que la capa de fondo esté por debajo del modal
+.modal-content {
+  background-color: $card; // Fondo claro para el contenido
+  color: $text;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+  .modal-header {
+    background-color: $primary;
+    color: $light;
+    border-bottom: 1px solid lighten($primary, 20%);
+    .btn-close {
+      filter: invert(1); // Invertir color para contraste
+    }
   }
 
-  .modal-content {
-    background-color: $card; // Fondo claro para contraste
-    color: $text; // Texto oscuro
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-    .modal-header {
-      background-color: $primary; // Azul Marino
-      color: $light; // Blanco
-      border-bottom: 1px solid lighten($primary, 20%);
-      .btn-close {
-        filter: invert(1); // Invertir color de la X para mayor visibilidad
-      }
+  .modal-body {
+    font-size: 1.1rem;
+    p {
+      margin-bottom: 1.5rem;
+      color: $text;
     }
+  }
 
-    .modal-body {
-      font-size: 1rem;
-      p {
-        margin-bottom: 1rem;
-      }
+  .btn-primary {
+    background-color: $primary;
+    border: none;
+    &:hover {
+      background-color: darken($primary, 10%);
     }
+  }
 
-    .btn-primary {
-      background-color: $primary;
-      border: none;
-
-      &:hover {
-        background-color: darken($primary, 10%);
-      }
+  .btn-secondary {
+    background-color: $secondary;
+    border: none;
+    &:hover {
+      background-color: darken($secondary, 10%);
     }
+  }
+}
 
-    .btn-secondary {
-      background-color: $secondary;
-      border: none;
+.modal.fade.show {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
 
-      &:hover {
-        background-color: darken($secondary, 10%);
-      }
-    }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

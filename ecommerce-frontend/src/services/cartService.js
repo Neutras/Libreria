@@ -13,44 +13,65 @@ class CartService {
   }
 
   // Agregar producto al carrito
-  addToCart(product) {
+  addToCart(product, quantity = 1) {
     const existingProduct = this.cart.find((p) => p.id === product.id);
+
     if (existingProduct) {
-      // Si ya existe, incrementar la cantidad, asegurándonos que no sobrepase el stock
-      if (existingProduct.quantity < product.stock) {
-        existingProduct.quantity += 1;
+      const newQuantity = existingProduct.quantity + quantity;
+
+      // Validación de stock al agregar cantidades adicionales
+      if (newQuantity <= product.stock) {
+        existingProduct.quantity = newQuantity;
       } else {
-        console.log("No puedes añadir más de lo que hay en stock.");
+        throw new Error(
+          `Stock insuficiente: Solo hay ${product.stock} unidades disponibles.`
+        );
       }
     } else {
-      // Si el producto no existe en el carrito, agregarlo
-      this.cart.push({ ...product, quantity: 1 });
+      // Validación de stock al añadir un producto nuevo
+      if (quantity <= product.stock) {
+        this.cart.push({ ...product, quantity });
+      } else {
+        throw new Error(
+          `Stock insuficiente: Solo hay ${product.stock} unidades disponibles.`
+        );
+      }
     }
 
-    this.saveCart();  // Guardamos el carrito actualizado
+    this.saveCart();
   }
 
   // Remover producto del carrito
   removeFromCart(productId) {
     this.cart = this.cart.filter((p) => p.id !== productId);
-    this.saveCart();  // Guardamos el carrito actualizado
+    this.saveCart();
   }
 
   // Actualizar cantidad de un producto
   updateQuantity(productId, quantity) {
     const product = this.cart.find((p) => p.id === productId);
-    if (product && quantity <= product.stock) {
+
+    if (!product) {
+      throw new Error("Producto no encontrado en el carrito.");
+    }
+
+    if (quantity > 0 && quantity <= product.stock) {
       product.quantity = quantity;
     } else {
-      console.log("Cantidad no válida.");
+      throw new Error(
+        quantity <= 0
+          ? "La cantidad debe ser mayor que 0."
+          : `Stock insuficiente: Solo hay ${product.stock} unidades disponibles.`
+      );
     }
-    this.saveCart();  // Guardamos el carrito actualizado
+
+    this.saveCart();
   }
 
   // Limpiar carrito
   clearCart() {
     this.cart = [];
-    this.saveCart();  // Limpiamos el carrito
+    this.saveCart();
   }
 
   // Obtener carrito actual
@@ -60,24 +81,78 @@ class CartService {
 
   // Calcular totales
   calculateTotals() {
-    const total = this.cart.reduce((sum, p) => sum + p.price * p.quantity, 0);
-    const points = Math.floor(total / 100);  // Calcular puntos
+    const total = this.cart.reduce((sum, p) => {
+      const price = p.priceWithDiscount || p.price;
+      return sum + price * p.quantity;
+    }, 0);
+
+    const points = Math.floor(total / 100);
     return { total, points };
+  }
+
+  // Sincronizar carrito con el backend
+  async syncCart() {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const response = await axios.get(`${API_URL}/cart`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.cart = response.data.cart || [];
+        this.saveCart();
+      }
+    } catch (error) {
+      console.error("Error al sincronizar el carrito:", error);
+      throw new Error("No se pudo sincronizar el carrito con el servidor.");
+    }
   }
 
   // Enviar pedido al backend
   async submitOrder() {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No autorizado. Por favor, inicia sesión.");
+      }
+
       const payload = this.cart.map(({ id, quantity }) => ({
         productId: id,
         quantity,
       }));
-      const response = await axios.post(API_URL, { products: payload });
-      this.clearCart(); // Limpiar carrito después del pedido
+
+      const response = await axios.post(
+        API_URL,
+        { products: payload },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      this.clearCart();
       return response.data;
     } catch (error) {
       console.error("Error al enviar el pedido:", error.response?.data || error.message);
-      throw error;
+      const message =
+        error.response?.status === 401
+          ? "No autorizado. Por favor, verifica tu sesión."
+          : "Hubo un problema al enviar tu pedido. Inténtalo nuevamente.";
+      throw new Error(message);
+    }
+  }
+
+  // Obtener detalles del carrito sincronizado con el backend
+  async fetchCartDetails() {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const response = await axios.get(`${API_URL}/cart/details`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error al obtener detalles del carrito:", error);
+      throw new Error("Hubo un problema al cargar los detalles del carrito.");
     }
   }
 }

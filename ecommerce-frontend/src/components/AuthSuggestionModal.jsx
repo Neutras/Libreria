@@ -1,91 +1,61 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
+import PropTypes from "prop-types";
 import "./AuthSuggestionModal.scss";
 
 const AuthSuggestionModal = ({ show, onClose }) => {
-  const modalRef = useRef(null); // Usamos useRef para referenciar el modal
   const navigate = useNavigate();
 
-  // Abrir el modal cuando 'show' cambie a true
-  useEffect(() => {
-    if (show) {
-      const modalElement = modalRef.current;
-      const modalInstance = new bootstrap.Modal(modalElement, {
-        backdrop: 'false', // Esto desactiva el fondo opaco
-        keyboard: true, // Esto permite cerrar el modal con la tecla ESC
-      });
-      modalInstance.show(); // Mostrar el modal
-
-      // Evento para cerrar modal al presionar ESC
-      const handleKeyDown = (e) => {
-        if (e.key === "Escape") {
-          closeModal();
-        }
-      };
-      window.addEventListener("keydown", handleKeyDown);
-
-      // Cleanup del event listener
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [show]); // Cuando 'show' cambie, ejecutamos este efecto
-
   const handleLogin = () => {
-    closeModal();
+    onClose();
     navigate("/login");
   };
 
   const handleRegister = () => {
-    closeModal();
+    onClose();
     navigate("/register");
   };
 
-  const closeModal = () => {
-    if (onClose) onClose(); // Llamar a onClose para cerrar el modal desde el padre
-    const modalElement = modalRef.current;
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    modalInstance.hide(); // Cerrar el modal
-  };
+  if (!show) return null; // No renderizar si el modal está cerrado
 
   return (
-    <div
-      ref={modalRef}
-      className="modal"
-      id="authSuggestionModal"
-      tabIndex="-1"
-      aria-labelledby="authSuggestionModalLabel"
-      aria-hidden="true"
-    >
+    <div className={`modal fade ${show ? "show d-block" : ""}`} tabIndex="-1" aria-labelledby="authModalLabel" aria-hidden={!show}>
       <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
+        <div className="modal-content shadow-sm">
           <div className="modal-header">
-            <h5 className="modal-title" id="authSuggestionModalLabel">
+            <h5 className="modal-title" id="authModalLabel">
               Acceso Requerido
             </h5>
             <button
               type="button"
               className="btn-close"
-              onClick={closeModal}
+              onClick={onClose}
               aria-label="Cerrar"
             ></button>
           </div>
-          <div className="modal-body">
+          <div className="modal-body text-center">
             <p>Inicia sesión o regístrate para acceder a esta funcionalidad.</p>
-            <div className="d-flex justify-content-around">
-              <Button className="btn-primary" onClick={handleLogin}>
+            <div className="d-flex justify-content-center gap-3">
+              <Button className="btn-primary w-50" onClick={handleLogin}>
                 Iniciar Sesión
               </Button>
-              <Button className="btn-secondary" onClick={handleRegister}>
+              <Button className="btn-secondary w-50" onClick={handleRegister}>
                 Registrarse
               </Button>
             </div>
           </div>
         </div>
       </div>
+      {/* Fondo opaco personalizado */}
+      <div className="modal-backdrop fade show"></div>
     </div>
   );
+};
+
+AuthSuggestionModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default AuthSuggestionModal;

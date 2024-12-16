@@ -134,9 +134,9 @@ const Home = () => {
         )}
       </section>
   
-      {/* Categorías */}
-      <section className="categories-section">
-        <h2 className="section-title">🛍️ ¿Qué buscas?</h2>
+      {/* Grilla de productos */}
+      <section className="products-section">
+        <h2 className="section-title">🛒 Explora Nuestros Productos</h2>
         {isLoading.categories ? (
           <p className="loading-message">Cargando categorías...</p>
         ) : categories?.length ? (
@@ -149,11 +149,6 @@ const Home = () => {
         ) : (
           <p className="empty-message">No hay categorías disponibles.</p>
         )}
-      </section>
-  
-      {/* Grilla de productos */}
-      <section className="products-section">
-        <h2 className="section-title">🛒 Explora Nuestros Productos</h2>
         {isLoading.products ? (
           <p className="loading-message">Cargando productos...</p>
         ) : products?.length ? (
