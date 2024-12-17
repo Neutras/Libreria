@@ -9,6 +9,7 @@ import Carousel from "../components/Carousel";
 import Categories from "../components/Categories";
 import ProductGrid from "../components/ProductGrid";
 import authService from "../services/authService";
+import FloatingNav from "../components/FloatingNav";
 import "./Home.scss";
 
 const Home = () => {
@@ -160,6 +161,7 @@ const Home = () => {
           <p className="empty-message">No hay productos disponibles.</p>
         )}
       </section>
+      <FloatingNav /> {/* Botones flotantes */}
     </div>
   );
 };

@@ -6,6 +6,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 100;
 
+  // Navbar Brand Logo
   .navbar-brand {
     display: flex;
     align-items: center;
@@ -25,40 +26,63 @@
       font-weight: bold;
       color: $secondary;
       transition: color 0.3s ease;
-      
+
       &:hover {
         color: $info;
       }
     }
   }
 
+  // Navbar Items
   .navbar-nav {
     display: flex;
     align-items: center;
-  }
 
-  // Botón de carrito y otros
-  .btn-outline-info {
-    border-color: $info;
-    color: $info;
-    transition: background-color 0.3s, color 0.3s;
-    padding: 0.6rem 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
+    .nav-link {
+      color: $dark;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 0 1rem;
+      display: inline-flex;
+      align-items: center;
 
-    &:hover {
-      background-color: $info;
-      color: $light;
+      svg {
+        margin-right: 0.5rem;
+      }
+
+      &:hover {
+        color: $info;
+        transition: color 0.3s;
+        font-size: 1.2rem;
+      }
+    }
+
+    .nav-analisis {
+      
     }
   }
 
-  .btn-outline-secondary {
-    border-color: $secondary;
-    color: $secondary;
-    transition: background-color 0.3s, color 0.3s;
+  // Botones Generales
+  button,
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.6rem 1rem;
     font-size: 1.1rem;
     font-weight: 600;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+
+    svg {
+      margin-right: 0.5rem;
+    }
+  }
+
+  // Botones específicos
+  .btn-outline-secondary {
+    border-color: $secondary;
+    color: $secondary;
 
     &:hover {
       background-color: $secondary;
@@ -66,26 +90,47 @@
     }
   }
 
-  .btn-primary {
-    background-color: $secondary;
-    border-color: $secondary;
-    color: $dark;
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: background-color 0.3s, color 0.3s;
+  .btn-outline-primary {
+    border-color: $info;
+    color: $info;
+    position: relative;
+    overflow: hidden;
+
+    // Animación sutil constante
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba($info, 0.2);
+      transition: all 0.5s ease;
+    }
 
     &:hover {
-      background-color: darken($secondary, 5%);
-      color: $dark;
+      background-color: $info;
+      color: $light;
+
+      &:before {
+        left: 100%;
+      }
+    }
+  }
+
+  .btn-outline-info {
+    border-color: $info;
+    color: $info;
+
+    &:hover {
+      background-color: $info;
+      color: $light;
     }
   }
 
   .btn-danger {
     background-color: $error;
-    border-color: $error;
     color: $light;
-    font-size: 1.1rem;
-    font-weight: 600;
 
     &:hover {
       background-color: darken($error, 5%);
@@ -95,7 +140,6 @@
 
   .btn-warning {
     background-color: $warning;
-    border-color: $warning;
     color: $dark;
 
     &:hover {
@@ -104,16 +148,77 @@
     }
   }
 
-  .btn-info {
+  // Animación específica para el botón de "Analizar Productos"
+  .btn-animated {
     background-color: $info;
-    border-color: $info;
     color: $light;
-    font-size: 1.1rem;
-    font-weight: 600;
+    border: none;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: lighten($info, 15%);
+      transform: rotate(45deg);
+      transition: top 0.4s ease-in-out;
+    }
+
+    &:hover::before {
+      top: 100%;
+    }
 
     &:hover {
-      background-color: darken($info, 5%);
+      background-color: darken($info, 10%);
       color: $light;
     }
   }
+
+  // Responsive adjustments
+  .navbar-toggler {
+    border: none;
+    color: $light;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  .analizar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 5px;
+    animation-duration: 0.75s;
+    animation-name: jump;
+    transition:all 0.3s linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes jump {
+    0% {
+      transform: scale(1,1) translate(0px, 0px);
+    }
+    
+    30%{
+      transform: scale(1,0.8) translate(0px, 10px); 
+    }
+  
+    75%{
+      transform: scale(1,1.1) translate(0px, -10px); 
+    }
+    
+   100% {
+      transform: scale(1,1) translate(0px, 0px);
+    }
+  
+  }
 }
+

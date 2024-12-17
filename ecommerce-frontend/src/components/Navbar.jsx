@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaInfoCircle } from "react-icons/fa";
+import {
+  FaShoppingCart,
+  FaInfoCircle,
+  FaSignInAlt,
+  FaUserPlus,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaImage,
+  FaList,
+} from "react-icons/fa";
 import Button from "./Button";
 import AuthSuggestionModal from "./AuthSuggestionModal";
 import CartSummaryModal from "./CartSummaryModal";
@@ -14,7 +23,7 @@ const Navbar = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
 
-  const { cart, clearCart } = useCart();  // Acceso al carrito desde el contexto
+  const { cart, clearCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,81 +45,127 @@ const Navbar = () => {
     authService.logout();
     setUserAuthenticated(false);
     setUserRole("");
-    clearCart(); // Limpiar carrito al cerrar sesión
-    navigate("/login"); // Redirigir al login después de cerrar sesión
+    clearCart();
+    navigate("/login");
   };
 
   const handleViewCart = () => {
     if (!userAuthenticated) {
-      setShowAuthModal(true);  // Mostrar modal de sugerencia de autenticación
+      setShowAuthModal(true);
     } else if (cart.length === 0) {
-      setShowCartModal(true);  // Mostrar modal de carrito vacío
+      setShowCartModal(true);
     } else {
-      navigate("/cart");  // Redirigir a la página del carrito
+      navigate("/cart");
     }
   };
 
   return (
-    <nav className="navbar navbar-custom">
+    <nav className="navbar navbar-expand-lg navbar-custom">
       <div className="container-fluid">
-        {/* Logo con imagen */}
+        {/* Logo */}
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img
-            src='/libreriasanjavier.jpg' // Asegúrate de tener la imagen en public/
+            src="/libreriasanjavier.jpg"
             alt="Logo"
             className="navbar-logo"
           />
-          <span className="ms-2">Librería San Javier</span>
+          <span className="ms-2 fw-bold">Librería San Javier</span>
         </Link>
 
-        {/* Navegación */}
-        <div className="d-flex align-items-center ms-auto">
-          {/* Sección "Sobre Nosotros" */}
-          <Link className="btn btn-outline-info me-2" to="/about">
-            Sobre Nosotros
-          </Link>
+        {/* Responsive Toggle Button */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-          {/* Botón del carrito */}
-          <Button
-            className="btn btn-outline-secondary d-flex align-items-center me-2"
-            onClick={handleViewCart}
-          >
-            <FaShoppingCart className="me-1" />
-            Carrito
-            {cart.length > 0 && (
-              <span className="badge bg-danger ms-2">{cart.length}</span>
-            )}
-          </Button>
+        {/* Navbar Links */}
+        <div className="navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/about">
+                <FaInfoCircle className="me-1" /> Sobre Nosotros
+              </Link>
+            </li>
+            <li className="nav-item nav-analisis">
+              <Link className="nav-link analizar" to="/image-upload">
+                <FaImage className="me-1" /> ¡Analiza tu lista!
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/">
+                <FaList className="me-1" /> Productos
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Button
+                className="btn btn-outline-secondary d-flex align-items-center"
+                onClick={handleViewCart}
+              >
+                <FaShoppingCart className="me-1" />
+                Carrito
+                {cart.length > 0 && (
+                  <span className="badge bg-danger ms-2">{cart.length}</span>
+                )}
+              </Button>
+            </li>
+          </ul>
 
-          {/* Opciones de usuario */}
-          {!userAuthenticated ? (
-            <>
-              <Button className="btn btn-primary me-2" as={Link} to="/login">
-                Iniciar Sesión
-              </Button>
-              <Button className="btn btn-outline-secondary" as={Link} to="/register">
-                Registrarse
-              </Button>
-            </>
-          ) : (
-            <>
-              {userRole === "admin" && (
+          {/* User Authentication Section */}
+          <div className="d-flex align-items-center">
+            {!userAuthenticated ? (
+              <>
                 <Button
-                  className="btn btn-warning me-2"
+                  className="btn btn-outline-primary me-2"
                   as={Link}
-                  to="/admin-dashboard"
+                  to="/login"
                 >
-                  Panel Admin
+                  <FaSignInAlt className="me-1" />
+                  Iniciar Sesión
                 </Button>
-              )}
-              <Button className="btn btn-info me-2" as={Link} to="/account">
-                Mi Perfil
-              </Button>
-              <Button className="btn btn-danger" onClick={handleLogout}>
-                Cerrar Sesión
-              </Button>
-            </>
-          )}
+                <Button
+                  className="btn btn-outline-success"
+                  as={Link}
+                  to="/register"
+                >
+                  <FaUserPlus className="me-1" />
+                  Registrarse
+                </Button>
+              </>
+            ) : (
+              <>
+                {userRole === "admin" && (
+                  <Button
+                    className="btn btn-warning me-2"
+                    as={Link}
+                    to="/admin-dashboard"
+                  >
+                    Panel Admin
+                  </Button>
+                )}
+                <Button
+                  className="btn btn-outline-info me-2"
+                  as={Link}
+                  to="/account"
+                >
+                  <FaUserCircle className="me-1" /> Mi Perfil
+                </Button>
+                <Button
+                  className="btn btn-danger"
+                  onClick={handleLogout}
+                >
+                  <FaSignOutAlt className="me-1" />
+                  Cerrar Sesión
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

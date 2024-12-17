@@ -4,6 +4,7 @@ import { processImage } from "../services/api";
 import cartService from "../services/cartService";
 import "./ImageUpload.scss";
 import { toast } from "react-toastify";
+import FloatingNav from '../components/FloatingNav'
 import { FaCamera, FaShoppingCart, FaCheck, FaPlus, FaMinus } from "react-icons/fa";
 
 const ImageUpload = () => {
@@ -302,6 +303,7 @@ const ImageUpload = () => {
           )}
         </div>
       )}
+      <FloatingNav /> {/* Botones flotantes */}
     </div>
   );
 };

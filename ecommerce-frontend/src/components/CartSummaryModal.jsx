@@ -1,27 +1,38 @@
 import React, { useEffect, useRef } from "react";
-import { useCart } from "../context/CartContext"; // Accedemos directamente al carrito desde el contexto
+import { useCart } from "../context/CartContext";
 import Button from "./Button";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./CartSummaryModal.scss";
 
 const CartSummaryModal = ({ show, onClose }) => {
-  const { cart } = useCart(); // Accedemos directamente al carrito desde el contexto
-  const modalRef = useRef(null); // Usamos useRef para referenciar el modal
+  const { cart } = useCart();
+  const modalRef = useRef(null);
+  let modalInstance = null;
 
-  // Abrir el modal cuando 'show' cambie a true
   useEffect(() => {
-    if (show) {
-      const modalElement = modalRef.current;
-      const modalInstance = new bootstrap.Modal(modalElement); // Crear nueva instancia de Bootstrap Modal
-      modalInstance.show(); // Mostrar el modal
+    const modalElement = modalRef.current;
+
+    // Verificar que no haya instancias anteriores
+    if (show && modalElement) {
+      modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement, {
+        backdrop: "static", // Evita cierre accidental al clicar el fondo
+        keyboard: true,    // Desactiva cierre con la tecla ESC
+      });
+      modalInstance.show();
     }
+
+    // Cleanup: Es importante destruir la instancia al desmontar
+    return () => {
+      if (modalInstance) {
+        modalInstance.hide();
+        modalInstance.dispose();
+      }
+    };
   }, [show]);
 
   const closeModal = () => {
-    if (onClose) onClose(); // Llamar a onClose para cerrar el modal
-    const modalElement = modalRef.current;
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    modalInstance.hide(); // Cerrar el modal
+    if (onClose) onClose();
+    if (modalInstance) modalInstance.hide();
   };
 
   return (
@@ -33,11 +44,12 @@ const CartSummaryModal = ({ show, onClose }) => {
       aria-labelledby="cartSummaryModalLabel"
       aria-hidden="true"
     >
-      <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-dialog modal-dialog-centered modal-md">
         <div className="modal-content">
+          {/* Header */}
           <div className="modal-header">
             <h5 className="modal-title" id="cartSummaryModalLabel">
-              Tu Carrito
+              Resumen de tu Carrito
             </h5>
             <button
               type="button"
@@ -46,23 +58,29 @@ const CartSummaryModal = ({ show, onClose }) => {
               aria-label="Cerrar"
             ></button>
           </div>
+
+          {/* Body */}
           <div className="modal-body">
             {cart.length === 0 ? (
-              <p>Tu carrito está vacío.</p>
+              <p className="text-center">Tu carrito está vacío.</p>
             ) : (
-              <ul>
+              <ul className="cart-items-list">
                 {cart.map((item, index) => (
-                  <li key={index}>
-                    Producto ID: {item.productId} x {item.quantity}
+                  <li key={index} className="cart-item">
+                    <span>{item.name}</span>
+                    <span>x {item.quantity}</span>
                   </li>
                 ))}
               </ul>
             )}
           </div>
+
+          {/* Footer */}
           <div className="modal-footer">
             <Button className="btn-secondary" onClick={closeModal}>
               Cerrar
             </Button>
+            <Button className="btn-primary">Ir a Checkout</Button>
           </div>
         </div>
       </div>

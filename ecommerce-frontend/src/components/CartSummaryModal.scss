@@ -1,42 +1,61 @@
-@import '../styles/custom.scss';
+@import "../styles/custom.scss";
 
 #cartSummaryModal {
   .modal-content {
     background-color: $card; // Fondo claro para el carrito
-    color: $text; // Texto oscuro
+    color: $text;
 
     .modal-header {
-      background-color: $primary; // Azul Marino
-      color: $light; // Blanco
+      background-color: $primary;
+      color: $light;
       border-bottom: 1px solid lighten($primary, 20%);
       .btn-close {
-        filter: invert(1); // Invertir color para visibilidad
+        filter: invert(1);
       }
     }
 
     .modal-body {
-      ul {
-        list-style-type: none;
+      .cart-items-list {
+        list-style: none;
         padding: 0;
 
-        li {
-          padding: 0.5rem 0;
+        .cart-item {
+          display: flex;
+          justify-content: space-between;
           border-bottom: 1px solid $neutral;
+          padding: 8px 0;
 
           &:last-child {
             border-bottom: none;
           }
         }
       }
+
+      p {
+        font-size: 1.1rem;
+        text-align: center;
+        color: $secondary;
+      }
     }
 
     .modal-footer {
+      justify-content: space-between;
+
       .btn-secondary {
         background-color: $secondary;
-        border: none;
+        color: $light;
 
         &:hover {
           background-color: darken($secondary, 10%);
+        }
+      }
+
+      .btn-primary {
+        background-color: $primary;
+        color: $light;
+
+        &:hover {
+          background-color: darken($primary, 10%);
         }
       }
     }
