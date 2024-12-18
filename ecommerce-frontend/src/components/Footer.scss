@@ -1,0 +1,108 @@
+@import "../styles/custom.scss"; // Importa tu paleta de colores personalizada
+
+.footer {
+  background-color: $dark; // Fondo oscuro del footer
+  color: $neutral; // Texto principal en gris claro
+  padding: 2rem 0; // Espaciado vertical
+
+  // Títulos de sección
+  h5 {
+    color: $secondary; // Títulos en amarillo dorado
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+  }
+
+  // Lista general
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: center; // Alinear íconos y texto
+      margin-bottom: 0.75rem;
+
+      svg {
+        margin-right: 0.5rem;
+        color: $secondary; // Iconos en amarillo dorado
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+      }
+
+      a {
+        color: $neutral; // Enlaces en gris claro
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $primary; // Hover en rojo brillante
+        }
+      }
+
+      &:hover {
+        svg {
+          color: $primary; // Efecto hover también en el icono
+        }
+      }
+    }
+  }
+
+  // Redes Sociales
+  .social-links {
+    display: flex;
+    gap: 1rem;
+
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $secondary; // Color inicial de iconos
+      font-size: 1.5rem; // Tamaño de íconos
+      transition: transform 0.3s ease, color 0.3s ease;
+
+      &:hover {
+        color: $primary; // Hover en rojo brillante
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Sección de Direcciones
+  .address {
+    a {
+      color: $neutral;
+      text-decoration: underline;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: $primary; // Hover en rojo brillante
+      }
+    }
+  }
+
+  // GitHub y Proyecto
+  .github-section {
+    font-size: 0.9rem;
+
+    a {
+      color: $warning; // Amarillo vibrante
+      text-decoration: underline;
+      font-weight: bold;
+
+      &:hover {
+        color: $primary; // Rojo brillante en hover
+      }
+    }
+  }
+
+  // Copyright
+  .text-center {
+    border-top: 1px solid rgba($neutral, 0.2);
+    margin-top: 2rem;
+    padding-top: 1rem;
+    font-size: 0.85rem;
+    color: $light;
+  }
+}

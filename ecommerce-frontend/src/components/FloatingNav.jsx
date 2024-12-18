@@ -1,30 +1,72 @@
 import React from "react";
-import { FaArrowUp, FaUser } from "react-icons/fa"; // Importar iconos
+import { FaArrowUp, FaUser, FaShoppingCart, FaEnvelope } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import "./FloatingNav.scss"; // Archivo de estilos
+import authService from "../services/authService"; // Servicio para verificar autenticación
+import "./FloatingNav.scss";
 
 const FloatingNav = () => {
   const navigate = useNavigate();
 
-  // Ir al inicio de la página
+  // Función para ir al inicio de la página
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Función para ir al footer (usando el ID del footer)
+  const scrollToFooter = () => {
+    const footer = document.getElementById("footer");
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   // Ir a la página de perfil
   const goToProfile = () => {
-    navigate("/profile");
+    navigate("/account");
   };
+
+  // Ir al carrito de compras
+  const goToCart = () => {
+    navigate("/cart");
+  };
+
+  // Verificar si el usuario está autenticado
+  const isAuthenticated = authService.isAuthenticated();
 
   return (
     <div className="floating-nav">
+      {/* Botón para ir arriba */}
       <button className="nav-button" onClick={scrollToTop} title="Ir arriba">
         <FaArrowUp />
         <span>Arriba</span>
       </button>
-      <button className="nav-button" onClick={goToProfile} title="Ir al perfil">
+
+      {/* Botón para ir al perfil */}
+      {isAuthenticated && (
+        <button className="nav-button" onClick={goToProfile} title="Ir al perfil">
         <FaUser />
         <span>Perfil</span>
+      </button>
+      )
+      }
+      
+
+      {/* Botón para el carrito - Solo si está autenticado */}
+      {isAuthenticated && (
+        <button className="nav-button" onClick={goToCart} title="Ir al carrito">
+          <FaShoppingCart />
+          <span>Carrito</span>
+        </button>
+      )}
+
+      {/* Botón para ir al footer/contacto */}
+      <button
+        className="nav-button"
+        onClick={scrollToFooter}
+        title="Ir a contacto"
+      >
+        <FaEnvelope />
+        <span>Contacto</span>
       </button>
     </div>
   );

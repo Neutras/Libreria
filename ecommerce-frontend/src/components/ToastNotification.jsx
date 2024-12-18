@@ -1,40 +1,47 @@
 import React, { useEffect, useState } from "react";
 import "./ToastNotification.scss";
 
-const ToastNotification = ({ message, show, onClose }) => {
-  const [isVisible, setIsVisible] = useState(show);
+const ToastNotification = ({ message, type = "success", show, onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (show) {
       setIsVisible(true);
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setIsVisible(false);
-        onClose(); // Llamar al callback para cerrar el toast después de 3 segundos
-      }, 3000); // El toast desaparecerá después de 3 segundos
+        onClose && onClose(); // Llamar al callback si existe
+      }, 3000);
+
+      return () => clearTimeout(timer); // Limpiar el timeout al desmontar
     }
   }, [show, onClose]);
 
   return (
-    isVisible && (
-      <div className="toast-container position-fixed bottom-0 end-0 p-3">
-        <div
-          className="toast align-items-center text-bg-success border-0"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-        >
-          <div className="d-flex">
-            <div className="toast-body">{message}</div>
-            <button
-              type="button"
-              className="btn-close btn-close-white me-2 m-auto"
-              aria-label="Cerrar"
-              onClick={() => setIsVisible(false)}
-            ></button>
-          </div>
+    <div
+      className={`toast-container position-fixed bottom-0 end-0 p-3 ${
+        isVisible ? "d-block" : "d-none"
+      }`}
+    >
+      <div
+        className={`toast align-items-center text-bg-${type} border-0 ${
+          isVisible ? "show" : ""
+        }`}
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div className="toast-header">
+          <strong className="me-auto text-light">Notificación</strong>
+          <button
+            type="button"
+            className="btn-close btn-close-white me-2 m-auto"
+            aria-label="Cerrar"
+            onClick={() => setIsVisible(false)}
+          ></button>
         </div>
+        <div className="toast-body">{message}</div>
       </div>
-    )
+    </div>
   );
 };
 

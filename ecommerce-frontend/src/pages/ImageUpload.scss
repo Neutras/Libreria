@@ -1,15 +1,61 @@
 @import "../styles/custom.scss"; // Paleta de colores y estilos base
 
+.section-description {
+  color: $text;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.instructions {
+  background-color: $neutral;
+  border: 1px solid darken($neutral, 10%);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+
+  h5 {
+    color: $primary;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+
+    li {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: $text;
+      position: relative;
+      padding-left: 1.5rem;
+
+      &:before {
+        content: "✓";
+        color: $success;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+      }
+    }
+  }
+}
+
 .image-upload-container {
   margin: auto;
   margin-top: 2rem;
   max-width: 900px;
   padding: 1rem;
+  background-color: $light;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
   h1 {
     color: $primary;
     font-weight: bold;
     text-align: center;
+    margin-bottom: 1.5rem;
   }
 
   .lead {
@@ -32,7 +78,7 @@
       li {
         margin-bottom: 0.5rem;
         &:before {
-          content: "✔";
+          content: "✓";
           color: $success;
           margin-right: 0.5rem;
         }
@@ -43,7 +89,7 @@
   form {
     .form-label {
       font-weight: bold;
-      color: $secondary;
+      color: $text;
     }
 
     input[type="file"] {
@@ -63,6 +109,7 @@
     .btn {
       font-size: 0.9rem;
       transition: all 0.3s ease;
+      padding: 0.5rem 1.2rem;
 
       &:hover {
         transform: scale(1.05);
@@ -134,7 +181,8 @@
   .preview-image {
     display: block;
     margin: 1rem auto;
-    max-width: 100%;
+    max-width: 60%;
+    max-height: 60%;
     border: 1px solid $neutral;
     border-radius: 0.5rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -159,6 +207,7 @@
       border: 1px solid $neutral;
       border-radius: 8px;
       transition: all 0.3s ease;
+      background-color: $white;
 
       &:hover {
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
@@ -166,14 +215,18 @@
       }
 
       .card-body {
+        padding: 1.2rem;
+        
         .card-title {
           color: $primary;
           font-weight: bold;
+          font-size: 1.1rem;
         }
 
         .card-text {
-          font-size: 1rem;
+          font-size: 0.95rem;
           margin-bottom: 1rem;
+          color: $text;
 
           .text-decoration-line-through {
             color: $error;
@@ -208,6 +261,8 @@
         .list-group-item {
           background-color: $neutral;
           border: none;
+          transition: background-color 0.2s ease;
+          color: $text;
 
           &:hover {
             background-color: lighten($neutral, 5%);
@@ -281,4 +336,5 @@
       }
     }
   }
+
 }

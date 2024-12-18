@@ -1,87 +1,129 @@
 import React, { useState } from "react";
-import Button from "./Button";
+import { FaCartPlus, FaCheck } from "react-icons/fa";
+import ToastNotification from "./ToastNotification";
+import AuthSuggestionModal from "./AuthSuggestionModal";
+import authService from "../services/authService";
 import "./Carousel.scss";
 
-const Carousel = ({ title, products = [], onAddToCart }) => {
+const Carousel = ({ title, products = [] }) => {
   const [toastMessage, setToastMessage] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [addedToCart, setAddedToCart] = useState([]); // Estado para productos añadidos
 
   const handleAddToCart = (product) => {
-    setToastMessage(`"${product.name}" añadido al carrito.`);
-    const toastEl = document.getElementById("carousel-toast");
-    if (toastEl) {
-      const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
-      toast.show();
+    if (!authService.isAuthenticated()) {
+      setSelectedProduct(product);
+      setShowAuthModal(true);
+      return;
     }
-    onAddToCart && onAddToCart(product);
+
+    // Lógica para añadir al carrito
+    setAddedToCart((prev) => [...prev, product.id]);
+    setToastMessage(`"${product.name}" añadido al carrito.`);
   };
 
-  if (!products.length) {
-    return <p className="text-center text-muted">No hay productos disponibles.</p>;
-  }
-
   return (
-    <div className="carousel-container position-relative">
-      {/* Título del carrusel */}
-      {title && <h3 className="carousel-title">{title}</h3>}
+    <div className="carousel-container">
+      {/* Título */}
+      {title && <h3 className="carousel-title mb-4">{title}</h3>}
 
-      {/* Toast */}
-      <div className="toast-container position-fixed bottom-0 end-0 p-3">
-        <div
-          id="carousel-toast"
-          className="toast align-items-center text-bg-primary border-0"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-          data-bs-delay="3000"
-        >
-          <div className="toast-header">
-            <strong className="me-auto text-light">Notificación</strong>
-            <button
-              type="button"
-              className="btn-close btn-close-white me-2 m-auto"
-              data-bs-dismiss="toast"
-              aria-label="Cerrar"
-            ></button>
-          </div>
-          <div className="toast-body">{toastMessage}</div>
-        </div>
-      </div>
+      {/* ToastNotification */}
+      {toastMessage && (
+        <ToastNotification
+          message={toastMessage}
+          show={!!toastMessage}
+          onClose={() => setToastMessage("")}
+        />
+      )}
 
-      {/* Carousel */}
-      <div id={`carousel-${title.replace(/\s+/g, "-").toLowerCase()}`} className="carousel slide" data-bs-ride="carousel">
+      {/* Modal de autenticación */}
+      {showAuthModal && (
+        <AuthSuggestionModal
+          show={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
+
+      {/* Carrusel */}
+      <div
+        id={`carousel-${title.replace(/\s+/g, "-").toLowerCase()}`}
+        className="carousel slide"
+        data-bs-ride="carousel"
+      >
         <div className="carousel-inner">
           {products.map((product, index) => (
-            <div key={product.id} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-              <img
-                src={`https://cataas.com/cat/says/${encodeURIComponent(product.name)}?fontSize=20&width=600&height=400`}
-                className="d-block w-100"
-                alt={product.name}
-              />
-              <div className="carousel-caption d-md-block">
-                <h5 className="text-light">{product.name}</h5>
-                {product.discountPercentage ? (
-                  <p>
-                    <span className="text-decoration-line-through text-muted">
-                      ${product.price}
-                    </span>{" "}
-                    <span className="text-warning fw-bold">${product.priceWithDiscount}</span>{" "}
-                    <small className="text-danger">
-                      (-{product.discountPercentage.toFixed(2)}%)
+            <div
+              key={product.id}
+              className={`carousel-item ${index === 0 ? "active" : ""}`}
+            >
+              <div className="product-card mx-auto">
+                <div className="position-relative">
+                  {/* Imagen */}
+                  <img
+                    src={`https://cataas.com/cat/says/${encodeURIComponent(
+                      product.name
+                    )}?fontSize=20&width=300&height=200`}
+                    className="d-block w-100 rounded"
+                    alt={product.name}
+                  />
+                  {/* Badge de descuento */}
+                  {product.discountPercentage > 0 && (
+                    <span className="badge bg-danger position-absolute top-0 end-0 m-2">
+                      ¡Oferta! ({product.discountPercentage.toFixed(0)}%)
+                    </span>
+                  )}
+                </div>
+
+                {/* Detalles del producto */}
+                <div className="card-body text-center p-2">
+                  <h6 className="card-title mb-1 fw-bold">{product.name}</h6>
+                  <p className="card-text mb-1">
+                    <small className="text-muted">
+                      Marca: {product.author}
                     </small>
                   </p>
-                ) : (
-                  <p className="text-warning">${product.price}</p>
-                )}
-                <Button
-                  className="btn btn-secondary mt-2"
-                  onClick={() => handleAddToCart(product)}
-                >
-                  <i className="bi bi-cart-plus me-2"></i>Añadir al carrito
-                </Button>
+                  <p className="card-text">
+                    {product.priceWithDiscount ? (
+                      <>
+                        <span className="text-decoration-line-through text-muted me-2">
+                          ${product.price}
+                        </span>
+                        <span className="text-success fw-bold">
+                          ${product.priceWithDiscount}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="fw-bold">${product.price}</span>
+                    )}
+                  </p>
+                  {/* Botón de añadir al carrito */}
+                  <button
+                    className={`btn btn-sm w-100 d-flex align-items-center justify-content-center ${
+                      addedToCart.includes(product.id)
+                        ? "btn-success"
+                        : "btn-primary"
+                    }`}
+                    onClick={() => handleAddToCart(product)}
+                    disabled={addedToCart.includes(product.id)}
+                  >
+                    {addedToCart.includes(product.id) ? (
+                      <>
+                        <FaCheck className="me-2" /> Añadido
+                      </>
+                    ) : (
+                      <>
+                        <FaCartPlus className="me-2" /> Añadir al carrito
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Controles del carrusel */}
         <button
           className="carousel-control-prev"
           type="button"

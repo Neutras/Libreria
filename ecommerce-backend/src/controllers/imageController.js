@@ -147,7 +147,9 @@ const matchProductsWithDatabase = async (extractedProducts) => {
       matchedProducts.push({
         id: product.id,
         name: product.name,
-        quantity,
+        quantity,               // Cantidad detectada por OCR
+        stock: product.stock,   // Stock real del producto
+        brand: product.author,  // Marca/Autor del producto
         price: product.price,
         recommendations,
       });

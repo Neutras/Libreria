@@ -2,10 +2,18 @@ import React, { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import { processImage } from "../services/api";
 import cartService from "../services/cartService";
+import authService from "../services/authService";
+import AuthSuggestionModal from "../components/AuthSuggestionModal";
+import ToastNotification from "../components/ToastNotification";
+import FloatingNav from "../components/FloatingNav";
 import "./ImageUpload.scss";
-import { toast } from "react-toastify";
-import FloatingNav from '../components/FloatingNav'
-import { FaCamera, FaShoppingCart, FaCheck, FaPlus, FaMinus } from "react-icons/fa";
+import {
+  FaCamera,
+  FaShoppingCart,
+  FaCheck,
+  FaPlus,
+  FaMinus,
+} from "react-icons/fa";
 
 const ImageUpload = () => {
   const [image, setImage] = useState(null);
@@ -13,7 +21,12 @@ const ImageUpload = () => {
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [addedToCart, setAddedToCart] = useState([]); // Control para efectos del botón
+  const [addedToCart, setAddedToCart] = useState([]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   const webcamRef = useRef(null);
 
@@ -21,8 +34,7 @@ const ImageUpload = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       setPreviewUrl(imageSrc);
-      const imageFile = dataURItoBlob(imageSrc);
-      setImage(imageFile);
+      setImage(dataURItoBlob(imageSrc));
       setIsCameraOpen(false);
     }
   };
@@ -50,7 +62,8 @@ const ImageUpload = () => {
     e.preventDefault();
 
     if (!image) {
-      toast.error("Por favor, selecciona o toma una foto antes de enviar.");
+      setToastMessage("Por favor, selecciona o toma una foto antes de enviar.");
+      setShowToast(true);
       return;
     }
 
@@ -59,53 +72,69 @@ const ImageUpload = () => {
 
     try {
       const data = await processImage(image);
-
-      toast.success("Imagen procesada exitosamente.");
+      setToastMessage("Imagen procesada exitosamente.");
+      setShowToast(true);
       setResult(data.extractedData);
     } catch (error) {
       console.error("Error al procesar la imagen:", error);
-      toast.error("Hubo un problema al procesar la imagen. Inténtalo de nuevo.");
+      setToastMessage("Error al procesar la imagen. Inténtalo de nuevo.");
+      setShowToast(true);
     } finally {
       setProcessing(false);
     }
   };
 
   const addToCart = (product, quantity) => {
+    if (!authService.isAuthenticated()) {
+      setSelectedProduct(product);
+      setShowAuthModal(true);
+      return;
+    }
+
     try {
       cartService.addToCart({ ...product, quantity });
-      setAddedToCart((prev) => [...prev, product.id]); // Control de efecto visual
-      toast.success(`${product.name} añadido al carrito.`);
+      setToastMessage(
+        `${product.name} añadido al carrito (${quantity} unidades).`
+      );
+      setShowToast(true);
+
+      setAddedToCart((prev) => [...prev, product.id]);
+      setTimeout(
+        () => setAddedToCart((prev) => prev.filter((id) => id !== product.id)),
+        3000
+      );
     } catch (error) {
-      toast.error(`Error al añadir ${product.name} al carrito.`);
+      setToastMessage(`Error al añadir ${product.name} al carrito.`);
+      setShowToast(true);
       console.error(error);
     }
   };
 
   const updateQuantity = (index, delta) => {
     const updatedResult = { ...result };
-    updatedResult.matchedProducts[index].quantity += delta;
-    if (updatedResult.matchedProducts[index].quantity < 1) {
-      updatedResult.matchedProducts[index].quantity = 1;
-    }
+    updatedResult.matchedProducts[index].quantity = Math.max(
+      1,
+      updatedResult.matchedProducts[index].quantity + delta
+    );
     setResult(updatedResult);
   };
 
   const replaceProductWithRecommendation = (index, recommendation) => {
     const updatedResult = { ...result };
-    const currentRecommendations =
-      updatedResult.matchedProducts[index].recommendations.filter(
-        (rec) => rec.id !== recommendation.id
-      );
+    const previousProduct = updatedResult.matchedProducts[index];
 
-    const currentProduct = {
-      ...updatedResult.matchedProducts[index],
-      recommendations: currentRecommendations,
-    };
+    // Añadir el producto actual a las recomendaciones antes de reemplazar
+    const updatedRecommendations = [
+      ...previousProduct.recommendations.filter(
+        (rec) => rec.id !== recommendation.id
+      ),
+      { ...previousProduct },
+    ];
 
     updatedResult.matchedProducts[index] = {
       ...recommendation,
-      quantity: currentProduct.quantity,
-      recommendations: [...currentRecommendations, currentProduct],
+      quantity: previousProduct.quantity,
+      recommendations: updatedRecommendations,
     };
 
     setResult(updatedResult);
@@ -113,11 +142,9 @@ const ImageUpload = () => {
 
   const renderMatchedProducts = () => (
     <div className="row">
+      <h1 className="mb-5">Resultados del Análisis</h1>
       {result.matchedProducts.map((product, index) => (
-        <div
-          key={index}
-          className="col-md-6 col-sm-12 card mb-3 matched-product animate__animated animate__fadeIn"
-        >
+        <div key={index} className="col-md-6 card mb-3">
           <div className="card-body">
             <div className="d-flex align-items-center mb-3">
               <img
@@ -129,20 +156,12 @@ const ImageUpload = () => {
                 style={{ width: "150px", height: "100px" }}
               />
               <div>
-                <h5 className="card-title">{product.name}</h5>
-                <p className="card-text">
-                  {product.originalPrice ? (
-                    <>
-                      <span className="text-muted text-decoration-line-through me-2">
-                        ${product.originalPrice}
-                      </span>
-                      <span className="fw-bold text-danger">
-                        ${product.price}
-                      </span>
-                    </>
-                  ) : (
-                    <span>${product.price}</span>
-                  )}
+                <h5>{product.name}</h5>
+                <p>
+                  <b>Precio:</b> ${product.price}{" "}
+                </p>
+                <p>
+                  <b>Stock:</b> {product.stock || 0} unidades
                 </p>
                 <div className="d-flex align-items-center">
                   <button
@@ -169,25 +188,25 @@ const ImageUpload = () => {
                   disabled={addedToCart.includes(product.id)}
                 >
                   {addedToCart.includes(product.id) ? (
-                    <>
-                      <FaCheck /> Añadido
-                    </>
+                    <FaCheck />
                   ) : (
-                    <>
-                      <FaShoppingCart /> Añadir al carrito
-                    </>
-                  )}
+                    <FaShoppingCart />
+                  )}{" "}
+                  {addedToCart.includes(product.id)
+                    ? "Añadido"
+                    : "Añadir al carrito"}
                 </button>
               </div>
             </div>
-            {product.recommendations.length > 0 && (
+
+            {product.recommendations?.length > 0 && (
               <>
-                <h6 className="mt-3">¿No era lo que buscabas? Revisa aquí:</h6>
+                <h6>No era lo que buscabas? Revisa aquí:</h6>
                 <ul className="list-group">
                   {product.recommendations.map((rec) => (
                     <li
                       key={rec.id}
-                      className="list-group-item d-flex justify-content-between align-items-center"
+                      className="list-group-item d-flex justify-content-between"
                     >
                       {rec.name} - ${rec.price}
                       <button
@@ -211,99 +230,92 @@ const ImageUpload = () => {
 
   return (
     <div className="image-upload-container container mt-5">
-      <h1 className="mb-4">Subir y Procesar Imagen</h1>
-      <p className="lead">
-        Sube o toma una foto de una lista de productos para analizarlos
-        automáticamente y agregarlos a tu carrito.
+      <h1 className="mb-3">¡Analiza listas de productos!</h1>
+      <p className="section-description text-center mb-4">
+        Sube o captura una imagen con una lista de productos para analizarlos
+        automáticamente. Asegúrate de que la imagen sea clara y cumpla con las
+        recomendaciones para obtener los mejores resultados.
       </p>
+
+      <div className="instructions mb-4">
+        <h5 className="text-center mb-2">Recomendaciones para las imágenes:</h5>
+        <ul className="list-unstyled text-center">
+          <li>No subas fotos borrosas.</li>
+          <li>Evita reflejos o sombras fuertes.</li>
+          <li>Captura la lista completa y bien alineada.</li>
+          <li>Utiliza buena iluminación.</li>
+          <li>El fondo debe ser lo más neutro posible.</li>
+        </ul>
+      </div>
+
       <form onSubmit={handleSubmit}>
         {!isCameraOpen ? (
-          <div className="mb-3">
-            <label htmlFor="image" className="form-label">
-              Selecciona o toma una foto
-            </label>
-            <div className="d-flex">
-              <input
-                type="file"
-                id="image"
-                className="form-control me-3"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setIsCameraOpen(true)}
-              >
-                <FaCamera /> Usar cámara
-              </button>
-            </div>
+          <div className="mb-3 d-flex">
+            <input
+              type="file"
+              className="form-control me-3"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={() => setIsCameraOpen(true)}
+            >
+              <FaCamera /> Usar Cámara
+            </button>
           </div>
         ) : (
           <div className="camera-container">
             <Webcam
-              audio={false}
               ref={webcamRef}
               screenshotFormat="image/jpeg"
               className="webcam-view"
             />
             <button
-              type="button"
               className="btn btn-primary mt-3"
+              type="button"
               onClick={capturePhoto}
             >
               Capturar Foto
             </button>
             <button
-              type="button"
               className="btn btn-danger mt-3"
+              type="button"
               onClick={() => setIsCameraOpen(false)}
             >
               Cancelar
             </button>
           </div>
         )}
-
         {previewUrl && (
-          <div className="mb-3">
-            <h5>Vista previa:</h5>
-            <img
-              src={previewUrl}
-              alt="Vista previa"
-              className="img-thumbnail preview-image"
-            />
-          </div>
+          <img
+            src={previewUrl}
+            alt="Vista previa"
+            className="img-thumbnail mt-3"
+          />
         )}
-
         <button
+          className="btn btn-primary mt-3"
           type="submit"
-          className="btn btn-primary"
           disabled={processing}
         >
-          {processing ? (
-            <span
-              className="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-          ) : (
-            "Procesar Imagen"
-          )}
+          {processing ? "Procesando..." : "Procesar Imagen"}
         </button>
       </form>
 
-      {result && (
-        <div className="mt-4">
-          <h3>Resultados</h3>
-          {result.matchedProducts.length > 0 && (
-            <div className="mt-3">
-              <h4>Productos Coincidentes</h4>
-              {renderMatchedProducts()}
-            </div>
-          )}
-        </div>
-      )}
-      <FloatingNav /> {/* Botones flotantes */}
+      {result?.matchedProducts?.length > 0 && renderMatchedProducts()}
+
+      <AuthSuggestionModal
+        show={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+      <ToastNotification
+        message={toastMessage}
+        show={showToast}
+        onClose={() => setShowToast(false)}
+      />
+      <FloatingNav />
     </div>
   );
 };

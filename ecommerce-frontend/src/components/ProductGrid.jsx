@@ -11,22 +11,25 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
   const [sortOption, setSortOption] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage] = useState(6);
   const [addedToCart, setAddedToCart] = useState([]);
   const [showOnlyOffers, setShowOnlyOffers] = useState(false);
   const { addToCart, isAuthenticated } = useCart();
-
   const [quantities, setQuantities] = useState({});
 
   // Actualizar lista filtrada y paginada
   useEffect(() => {
     let filtered = products;
     if (searchTerm.length >= 3) {
-      const normalize = (str) => str.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+      const normalize = (str) =>
+        str.normalize("NFD").replace(/\p{Diacritic}/gu, "");
       filtered = products.filter((product) =>
-        normalize(product.name.toLowerCase()).includes(normalize(searchTerm.toLowerCase()))
+        normalize(product.name.toLowerCase()).includes(
+          normalize(searchTerm.toLowerCase())
+        )
       );
     }
     if (showOnlyOffers) {
@@ -36,13 +39,11 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
     setPage(1); // Reiniciar a la primera página después de filtrar
   }, [products, searchTerm, showOnlyOffers]);
 
-  // Función de paginación
   const paginatedProducts = useCallback(() => {
     const start = (page - 1) * perPage;
     return filteredProducts.slice(start, start + perPage);
   }, [filteredProducts, page, perPage]);
 
-  // Ordenar productos
   const handleSort = (option) => {
     setSortOption(option);
     let sortedProducts = [...filteredProducts];
@@ -65,22 +66,33 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
     setFilteredProducts(sortedProducts);
   };
 
-  // Añadir al carrito
+  // Añadir al carrito con autenticación
   const handleAddToCart = (product) => {
     const quantity = quantities[product.id] || 1;
 
     if (isAuthenticated) {
       try {
         if (quantity > product.stock) {
-          setToastMessage(`Stock insuficiente para \"${product.name}\". Máximo disponible: ${product.stock}.`);
+          setToastMessage(
+            `Stock insuficiente para "${product.name}". Máximo disponible: ${product.stock}.`
+          );
+          setShowToast(true);
           return;
         }
         addToCart({ ...product, quantity });
-        setToastMessage(`\"${product.name}\" se añadió al carrito (${quantity} unidades).`);
+        setToastMessage(
+          `"${product.name}" se añadió al carrito (${quantity} unidades).`
+        );
+        setShowToast(true);
         setAddedToCart((prev) => [...prev, product.id]);
-        setTimeout(() => setAddedToCart((prev) => prev.filter((id) => id !== product.id)), 2000);
+        setTimeout(
+          () =>
+            setAddedToCart((prev) => prev.filter((id) => id !== product.id)),
+          2000
+        );
       } catch (error) {
         setToastMessage(error.message);
+        setShowToast(true);
       }
     } else {
       setSelectedProduct(product);
@@ -88,27 +100,29 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
     }
   };
 
-  // Manejo de cantidades
   const updateQuantity = (id, delta, stock) => {
     setQuantities((prev) => ({
       ...prev,
-      [id]: Math.min(Math.max((prev[id] || 1) + delta, 1), stock), // Respetar el stock
+      [id]: Math.min(Math.max((prev[id] || 1) + delta, 1), stock),
     }));
   };
 
   return (
     <div className="product-grid">
-      {toastMessage && <ToastNotification message={toastMessage} onClose={() => setToastMessage("")} />}
+      {showToast && (
+        <ToastNotification
+          message={toastMessage}
+          type="success"
+          show={showToast}
+          onClose={() => setShowToast(false)}
+        />
+      )}
+
       {showAuthModal && (
         <AuthSuggestionModal
           show={showAuthModal}
           onClose={() => setShowAuthModal(false)}
           product={selectedProduct}
-          onAddToCart={(product) => {
-            addToCart(product);
-            setShowAuthModal(false);
-            setToastMessage(`\"${product.name}\" se añadió al carrito.`);
-          }}
         />
       )}
 
@@ -164,39 +178,46 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
             <div className="card product-card">
               <div className="position-relative">
                 <img
-                  src={`https://cataas.com/cat/says/${encodeURIComponent(product.name)}?fontSize=20&width=300&height=200`}
+                  src={`https://cataas.com/cat/says/${encodeURIComponent(
+                    product.name
+                  )}?fontSize=20&width=300&height=200`}
                   className="card-img-top"
                   alt={product.name}
-                  title={product.description}
                 />
                 {product.discountPercentage > 0 && (
                   <span className="badge bg-danger position-absolute top-0 end-0 m-2">
-                    ¡Oferta! ({product.discountPercentage.toFixed(2)}%)
+                    ¡Oferta! ({product.discountPercentage.toFixed(0)}%)
                   </span>
                 )}
               </div>
               <div className="card-body">
                 <h5 className="card-title">{product.name}</h5>
-                <p className="card-text text-muted mb-1"><b>Marca</b>: {product.author}</p>
-                <p className="card-text text-muted mb-1"><b>Stock</b>: {product.stock} unidades</p>
                 <p className="card-text">
+                  <b>Marca</b>: {product.author}
+                  <br />
+                  <b>Stock</b>: {product.stock} unidades
+                </p>
+                <p className="card-text">
+                  <b>Precio</b>:{" "}
                   {product.priceWithDiscount ? (
                     <>
-                      <span className="text-muted text-decoration-line-through">
+                      <span className="text-muted text-decoration-line-through me-2">
                         ${product.price}
                       </span>
-                      <span className="text-success fw-bold ms-2">
+                      <span className="text-success fw-bold">
                         ${product.priceWithDiscount}
                       </span>
                     </>
                   ) : (
-                    <span className="text-dark fw-bold">${product.price}</span>
+                    <span className="fw-bold">${product.price}</span>
                   )}
                 </p>
                 <div className="d-flex align-items-center">
                   <button
                     className="btn btn-outline-secondary btn-sm me-2"
-                    onClick={() => updateQuantity(product.id, -1, product.stock)}
+                    onClick={() =>
+                      updateQuantity(product.id, -1, product.stock)
+                    }
                   >
                     <FaMinus />
                   </button>
@@ -209,19 +230,18 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
                   </button>
                 </div>
                 <button
-                  className={`btn w-100 mt-3 ${addedToCart.includes(product.id) ? "btn-success" : "btn-primary"}`}
+                  className={`btn w-100 mt-3 ${
+                    addedToCart.includes(product.id)
+                      ? "btn-success"
+                      : "btn-primary"
+                  }`}
                   onClick={() => handleAddToCart(product)}
                   disabled={addedToCart.includes(product.id)}
                 >
-                  {addedToCart.includes(product.id) ? (
-                    <span>
-                      <FaCartPlus /> Añadido
-                    </span>
-                  ) : (
-                    <span>
-                      <FaCartPlus /> Añadir al carrito
-                    </span>
-                  )}
+                  <FaCartPlus />{" "}
+                  {addedToCart.includes(product.id)
+                    ? "Añadido"
+                    : "Añadir al carrito"}
                 </button>
               </div>
             </div>

@@ -1,0 +1,86 @@
+@import "../styles/custom.scss"; // Importa tu paleta de colores personalizada
+
+.terms-content {
+    max-height: 400px; // Scroll si el contenido es muy largo
+    overflow-y: auto;
+    padding-right: 10px;
+  
+    h6 {
+      font-weight: bold;
+      margin-top: 15px;
+      color: $primary;
+    }
+  
+    p {
+      color: $text;
+      margin-bottom: 10px;
+    }
+  
+    ul {
+      padding-left: 20px;
+      list-style-type: disc;
+  
+      li {
+        color: darken($text, 10%);
+        margin-bottom: 5px;
+      }
+    }
+  
+    a {
+      color: $secondary;
+      text-decoration: underline;
+  
+      &:hover {
+        color: darken($secondary, 10%);
+      }
+    }
+  }
+  
+  .form-check {
+    display: flex;
+    align-items: center;
+  
+    input {
+      margin-right: 8px;
+      width: 1.2em;
+      height: 1.2em;
+    }
+  
+    label {
+      font-size: 0.95rem;
+      color: $text;
+    }
+  }
+  
+  .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  
+    .btn {
+      transition: background-color 0.3s ease;
+  
+      &.btn-primary {
+        background-color: $primary;
+        color: #fff;
+  
+        &:hover {
+          background-color: darken($primary, 10%);
+        }
+  
+        &:disabled {
+          background-color: lighten($primary, 20%);
+          cursor: not-allowed;
+        }
+      }
+  
+      &.btn-secondary {
+        background-color: $neutral;
+        color: $dark;
+  
+        &:hover {
+          background-color: darken($neutral, 10%);
+        }
+      }
+    }
+  }  

@@ -10,7 +10,7 @@
     text-align: center;
     position: relative;
 
-    // Adding a decorative underline
+    // Decorative underline
     &::after {
       content: "";
       display: block;
@@ -19,16 +19,6 @@
       background: $secondary;
       margin: 10px auto 0;
       border-radius: 2px;
-    }
-
-    // Adding an icon before the title
-    &::before {
-      font-size: 1.2rem;
-      position: absolute;
-      top: 0;
-      left: -20px;
-      transform: translateY(-5%);
-      color: $secondary;
     }
   }
 
@@ -40,22 +30,43 @@
     margin: 10px 0;
   }
 
-  .recommendations-section,
-  .hot-products-section,
-  .categories-section,
-  .products-section {
-    margin-bottom: 10px; // Reduced margin for tighter spacing
-    padding: 10px; // Less padding for a more compact look
-    background-color: $neutral;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // Wrapper for compact carousels
+  .carousel-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
 
-    &:last-child {
-      margin-bottom: 0;
+    .carousel-container {
+      flex: 1 1 calc(50% - 20px); // Cada carrusel ocupa el 50% menos el gap
+      max-width: calc(50% - 20px);
+      padding: 15px;
+      background-color: $neutral;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px); // Pequeño efecto hover
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    // Si solo hay un carrusel, ocupará todo el ancho
+    .carousel-container:only-child {
+      flex: 1 1 100%;
+      max-width: 100%;
     }
   }
 
-  .categories-section {
+  // Products Section
+  .products-section {
+    margin-top: 20px;
+    background-color: $neutral;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
     .categories-container {
       display: flex;
       flex-wrap: wrap;
@@ -65,6 +76,18 @@
   }
 
   // Responsive adjustments
+  @media (max-width: 992px) {
+    .carousel-wrapper {
+      flex-direction: column; // Apila carruseles verticalmente en pantallas medianas
+      gap: 15px;
+
+      .carousel-container {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+    }
+  }
+
   @media (max-width: 768px) {
     .section-title {
       font-size: 1.4rem;
@@ -74,11 +97,7 @@
       }
     }
 
-    .recommendations-section,
-    .hot-products-section,
-    .categories-section,
     .products-section {
-      margin-bottom: 15px;
       padding: 10px;
     }
   }
