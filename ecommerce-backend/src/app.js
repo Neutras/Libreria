@@ -11,8 +11,8 @@ const orderRoutes = require('./routes/orderRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const metricRoutes = require('./routes/metricRoutes');
-const imageRoutes = require('./routes/imageRoutes'); // Nueva ruta de imágenes
-const { initializeCronJobs } = require('./cronJobs');
+const imageRoutes = require('./routes/imageRoutes');
+const initializeScheduler = require('./scheduler');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -50,7 +50,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/metrics', metricRoutes);
-app.use('/api/images', imageRoutes); // Nueva ruta añadida
+app.use('/api/images', imageRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
@@ -99,7 +99,7 @@ io.on('connection', (socket) => {
 });
 
 // Inicializar tareas programadas
-initializeCronJobs(io);
+initializeScheduler();
 
 // Iniciar servidor
 const PORT = process.env.PORT || 4000;

@@ -206,11 +206,13 @@ const getRecommendations = async (req, res) => {
 
     console.log("userOrders:", userOrders);
 
-    // Verificar si el usuario no tiene historial de compras
     if (userOrders.length === 0) {
-      console.log("El usuario no tiene historial de compras. Recomendando productos destacados...");
+      console.log(
+        "El usuario no tiene historial de compras. Recomendando productos destacados..."
+      );
       const hotProducts = await prisma.product.findMany({
         where: { isHot: true },
+        take: 5, // Limitar a 5 productos
       });
 
       return res.status(200).json(hotProducts);
@@ -226,10 +228,12 @@ const getRecommendations = async (req, res) => {
         const author = orderProduct.product?.author;
 
         if (category) {
-          purchasedCategories[category] = (purchasedCategories[category] || 0) + 1;
+          purchasedCategories[category] =
+            (purchasedCategories[category] || 0) + 1;
         }
         if (author) {
-          purchasedAuthors[author] = (purchasedAuthors[author] || 0) + 1;
+          purchasedAuthors[author] =
+            (purchasedAuthors[author] || 0) + 1;
         }
       });
     });
@@ -237,8 +241,26 @@ const getRecommendations = async (req, res) => {
     console.log("purchasedCategories:", purchasedCategories);
     console.log("purchasedAuthors:", purchasedAuthors);
 
+    // Obtener usuarios con compras similares
+    const similarUsers = await prisma.order.findMany({
+      where: {
+        products: {
+          some: { product: { category: { in: Object.keys(purchasedCategories) } } },
+        },
+      },
+      select: { userId: true },
+    });
+
+    const similarUserIds = [...new Set(similarUsers.map((u) => u.userId))].filter(
+      (id) => id !== userId
+    );
+
+    console.log("similarUserIds:", similarUserIds);
+
     // Calcular la puntuación de cada producto
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: { promotions: true },
+    });
     const productScores = {};
 
     products.forEach((product) => {
@@ -252,6 +274,14 @@ const getRecommendations = async (req, res) => {
         score += purchasedAuthors[product.author] * 0.4;
       }
 
+      if (product.promotions.some((promo) => new Date(promo.expiresAt) > new Date())) {
+        score += 0.2;
+      }
+
+      if (product.isHot) {
+        score += 0.1;
+      }
+
       if (score > 0) {
         productScores[product.id] = score; // Solo incluir productos con puntuación válida
       }
@@ -259,30 +289,21 @@ const getRecommendations = async (req, res) => {
 
     console.log("productScores:", productScores);
 
-    // Ordenar los productos por puntuación y obtener los IDs
-    const recommendedProductIds = Object.entries(productScores)
-      .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-      .slice(0, 5)
-      .map(([productId]) => parseInt(productId))
-      .filter((id) => Number.isInteger(id)); // Asegurar solo IDs válidos
-
-    console.log("recommendedProductIds (antes de exclusión):", recommendedProductIds);
-
-    // Excluir productos comprados
-    const excludedProductIds = userOrders.flatMap((order) =>
+    // Excluir productos comprados y ordenar por puntuación
+    const purchasedProductIds = userOrders.flatMap((order) =>
       order.products.map((product) => product.productId)
     );
 
-    console.log("Productos excluidos (ya comprados):", excludedProductIds);
+    const recommendedProductIds = Object.entries(productScores)
+      .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+      .map(([productId]) => parseInt(productId))
+      .filter((id) => !purchasedProductIds.includes(id)) // Excluir productos ya comprados
+      .slice(0, 5); // Limitar a 5 productos
 
-    const filteredRecommendedIds = recommendedProductIds.filter(
-      (id) => !excludedProductIds.includes(id)
-    );
+    console.log("recommendedProductIds:", recommendedProductIds);
 
-    console.log("recommendedProductIds (después de exclusión):", filteredRecommendedIds);
-
-    if (filteredRecommendedIds.length === 0) {
-      console.log("No hay productos recomendados disponibles después de la exclusión.");
+    if (recommendedProductIds.length === 0) {
+      console.log("No hay productos recomendados disponibles.");
       return res
         .status(404)
         .json({ message: "No hay productos recomendados disponibles." });
@@ -290,9 +311,7 @@ const getRecommendations = async (req, res) => {
 
     // Consultar productos recomendados
     const recommendedProducts = await prisma.product.findMany({
-      where: {
-        id: { in: filteredRecommendedIds },
-      },
+      where: { id: { in: recommendedProductIds } },
     });
 
     console.log("recommendedProducts:", recommendedProducts);
