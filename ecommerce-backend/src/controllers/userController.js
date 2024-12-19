@@ -74,9 +74,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-/**
- * Obtener puntos del usuario actual.
- */
+// Obtener puntos del usuario actual
 const getUserPoints = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -93,14 +91,12 @@ const getUserPoints = async (req, res) => {
   }
 };
 
-/**
- * Obtener puntos de un usuario específico (solo para administradores).
- */
+// Obtener puntos de un usuario específico (solo para administradores)
 const getUserPointsByAdmin = async (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
   try {
-    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+    const user = await prisma.user.findUnique({ where: { id: parseInt(userId) } });
 
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado.' });
@@ -113,9 +109,7 @@ const getUserPointsByAdmin = async (req, res) => {
   }
 };
 
-/**
- * Actualizar puntos del usuario (por eventos del sistema).
- */
+// Actualizar puntos del usuario (por eventos del sistema)
 const updateUserPoints = async (userId, points, operation = 'increment') => {
   try {
     const updateData =
@@ -133,6 +127,7 @@ const updateUserPoints = async (userId, points, operation = 'increment') => {
   }
 };
 
+// Obtener perfil del usuario actual
 const getUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -158,6 +153,79 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// Obtener lista de todos los usuarios (solo para administradores)
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        points: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error.message);
+    res.status(500).json({ error: 'Error al obtener usuarios.' });
+  }
+};
+
+/**
+ * Eliminar un usuario.
+ */
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    // Eliminar pedidos relacionados
+    await prisma.order.deleteMany({ where: { userId: parseInt(id) } });
+
+    // Eliminar usuario
+    await prisma.user.delete({ where: { id: parseInt(id) } });
+
+    res.status(200).json({ message: "Usuario eliminado exitosamente." });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error.message);
+    res.status(500).json({ error: "Error al eliminar usuario." });
+  }
+};
+
+/**
+ * Editar un usuario.
+ */
+const editUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, role } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: { name, email, role },
+    });
+
+    res.status(200).json({ message: "Usuario actualizado exitosamente.", user: updatedUser });
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error.message);
+    res.status(500).json({ error: "Error al actualizar usuario." });
+  }
+};
 
 module.exports = {
   registerUser,
@@ -165,5 +233,8 @@ module.exports = {
   getUserPoints,
   getUserPointsByAdmin,
   updateUserPoints,
-  getUserProfile
+  getUserProfile,
+  getAllUsers,
+  deleteUser,
+  editUser
 };

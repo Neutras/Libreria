@@ -5,9 +5,11 @@ const {
   loginUser, 
   getUserPoints, 
   getUserPointsByAdmin,
-  getUserProfile
+  getUserProfile,
+  getAllUsers,
+  deleteUser,
+  editUser
 } = require('../controllers/userController');
-
 
 const router = express.Router();
 
@@ -17,18 +19,24 @@ router.post('/register', registerUser);
 // Ruta para iniciar sesión
 router.post('/login', loginUser);
 
-// Ruta protegida de perfil
-router.get('/profile', protect, (req, res) => {
-  res.status(200).json({
-    message: 'Acceso permitido. Datos del usuario autenticado:',
-    user: req.user, // Esto asume que el middleware "protect" asigna "req.user"
-  });
-});
+// Ruta para obtener todos los usuarios (admin)
+router.get('/all', protect, admin, getAllUsers);
 
-// Ruta para ver puntos
-router.get('/points', protect, getUserPoints);
-router.get('/:userId/points', protect, admin, getUserPointsByAdmin); // Admin: Obtener puntos de un usuario
+// Ruta protegida para obtener perfil del usuario
 router.get('/profile', protect, getUserProfile);
+
+// Ruta para ver puntos del usuario autenticado
+router.get('/points', protect, getUserPoints);
+
+// Ruta para obtener puntos de un usuario específico (admin)
+router.get('/:userId/points', protect, admin, getUserPointsByAdmin);
+
+// Eliminar usuario
+router.delete("/:id", protect, admin, deleteUser);
+
+// Editar usuario
+router.patch("/:id", protect, admin, editUser);
+
 
 
 module.exports = router;

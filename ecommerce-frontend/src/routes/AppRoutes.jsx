@@ -8,11 +8,14 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import ImageUpload from '../pages/ImageUpload';
+import AdminDashboard from '../pages/admin/AdminDashboard'; // Dashboard de Admin
+import UserManagement from '../pages/admin/UserManagement'; // Subcomponentes de administración
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
+        {/* Todas las rutas comparten el mismo MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
@@ -22,6 +25,12 @@ const AppRoutes = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Profile />} />
           <Route path="/image-upload" element={<ImageUpload />} />
+
+          {/* Rutas para Administración */}
+          <Route path="/admin">
+            <Route index element={<AdminDashboard />} /> {/* Página principal */}
+            <Route path="users" element={<UserManagement />} /> {/* Gestión de Usuarios */}
+          </Route>
         </Route>
       </Routes>
     </Router>

@@ -52,7 +52,7 @@ model InventoryAlert {
 model Order {
   id        Int            @id @default(autoincrement())
   userId    Int
-  user      User           @relation(fields: [userId], references: [id])
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   status    String         @default("Pending") // Estados: Pending, Preparing, Ready, Completed
   total     Float
   points    Int            @default(0) // Puntos generados por el pedido
