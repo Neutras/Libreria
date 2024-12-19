@@ -92,12 +92,14 @@ const ImageUpload = () => {
     }
 
     try {
-      cartService.addToCart({ ...product, quantity });
+      // Pasar el producto con la cantidad correcta al servicio del carrito
+      cartService.addToCart(product, quantity);
       setToastMessage(
         `${product.name} añadido al carrito (${quantity} unidades).`
       );
       setShowToast(true);
 
+      // Añadir al estado de productos añadidos
       setAddedToCart((prev) => [...prev, product.id]);
       setTimeout(
         () => setAddedToCart((prev) => prev.filter((id) => id !== product.id)),
@@ -184,7 +186,7 @@ const ImageUpload = () => {
                       ? "btn-success"
                       : "btn-primary"
                   }`}
-                  onClick={() => addToCart(product, product.quantity)}
+                  onClick={() => addToCart(product, product.quantity)} // Pasar la cantidad correcta
                   disabled={addedToCart.includes(product.id)}
                 >
                   {addedToCart.includes(product.id) ? (

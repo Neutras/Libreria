@@ -28,10 +28,10 @@ const Navbar = () => {
 
   useEffect(() => {
     const checkAuthentication = () => {
-      const userData = authService.isAuthenticated();
-      if (userData) {
+      const isAuthenticated = authService.isAuthenticated();
+      if (isAuthenticated) {
         setUserAuthenticated(true);
-        setUserRole(userData.role);
+        setUserRole(authService.getUserRole());
       } else {
         setUserAuthenticated(false);
         setUserRole("");
@@ -56,6 +56,14 @@ const Navbar = () => {
       setShowCartModal(true);
     } else {
       navigate("/cart");
+    }
+  };
+
+  const handleProfileOrAdmin = () => {
+    if (userRole === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/account");
     }
   };
 
@@ -93,8 +101,8 @@ const Navbar = () => {
                 <FaInfoCircle className="me-1" /> Sobre Nosotros
               </Link>
             </li>
-            <li className="nav-item nav-analisis">
-              <Link className="nav-link analizar" to="/image-upload">
+            <li className="nav-item">
+              <Link className="nav-link" to="/image-upload">
                 <FaImage className="me-1" /> ¡Analiza tu lista!
               </Link>
             </li>
@@ -140,21 +148,12 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                {userRole === "admin" && (
-                  <Button
-                    className="btn btn-warning me-2"
-                    as={Link}
-                    to="/admin-dashboard"
-                  >
-                    Panel Admin
-                  </Button>
-                )}
                 <Button
-                  className="btn btn-outline-info me-2"
-                  as={Link}
-                  to="/account"
+                  className="btn btn-warning me-2"
+                  onClick={handleProfileOrAdmin}
                 >
-                  <FaUserCircle className="me-1" /> Mi Perfil
+                  <FaUserCircle className="me-1" />
+                  {userRole === "admin" ? "Panel Admin" : "Mi Perfil"}
                 </Button>
                 <Button
                   className="btn btn-danger"

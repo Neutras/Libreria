@@ -20,9 +20,14 @@ const FloatingNav = () => {
     }
   };
 
-  // Ir a la página de perfil
-  const goToProfile = () => {
-    navigate("/account");
+  // Navegación dinámica basada en el rol
+  const goToDashboard = () => {
+    const role = authService.getUserRole();
+    if (role === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/account");
+    }
   };
 
   // Ir al carrito de compras
@@ -32,6 +37,7 @@ const FloatingNav = () => {
 
   // Verificar si el usuario está autenticado
   const isAuthenticated = authService.isAuthenticated();
+  const userRole = authService.getUserRole();
 
   return (
     <div className="floating-nav">
@@ -41,15 +47,17 @@ const FloatingNav = () => {
         <span>Arriba</span>
       </button>
 
-      {/* Botón para ir al perfil */}
+      {/* Botón para el perfil o panel admin */}
       {isAuthenticated && (
-        <button className="nav-button" onClick={goToProfile} title="Ir al perfil">
-        <FaUser />
-        <span>Perfil</span>
-      </button>
-      )
-      }
-      
+        <button
+          className="nav-button"
+          onClick={goToDashboard}
+          title={userRole === "admin" ? "Panel Admin" : "Mi Perfil"}
+        >
+          <FaUser />
+          <span>{userRole === "admin" ? "Admin" : "Perfil"}</span>
+        </button>
+      )}
 
       {/* Botón para el carrito - Solo si está autenticado */}
       {isAuthenticated && (

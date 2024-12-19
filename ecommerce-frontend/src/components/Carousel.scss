@@ -1,9 +1,9 @@
 @import '../styles/custom.scss';
 
 .carousel-container {
-  max-width: 1200px; // Ampliar ancho máximo
+  max-width: 1200px;
   margin: 2rem auto;
-  background-color: $light; // Fondo limpio
+  background-color: $light;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -32,7 +32,7 @@
   .carousel {
     .carousel-item {
       .product-card {
-        background-color: $extra; // Color blanco para tarjetas
+        background-color: $extra;
         border-radius: 8px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s ease-in-out;
@@ -73,6 +73,41 @@
             }
           }
 
+          // Botones + y -
+          .quantity-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.8rem;
+
+            button {
+              background-color: $neutral;
+              border: 1px solid $primary;
+              border-radius: 5px;
+              color: $dark;
+              font-size: 0.9rem;
+              width: 30px;
+              height: 30px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              transition: all 0.2s ease;
+
+              &:hover {
+                background-color: $primary;
+                color: $light;
+              }
+            }
+
+            span {
+              margin: 0 10px;
+              font-size: 1rem;
+              font-weight: bold;
+              color: $dark;
+            }
+          }
+
+          // Botón de añadir al carrito
           .btn {
             font-size: 0.85rem;
             display: flex;
@@ -147,6 +182,18 @@
       .card-body {
         .btn {
           font-size: 0.8rem;
+        }
+
+        .quantity-controls {
+          button {
+            width: 25px;
+            height: 25px;
+            font-size: 0.8rem;
+          }
+
+          span {
+            font-size: 0.9rem;
+          }
         }
       }
     }

@@ -1,15 +1,30 @@
 import React, { useState } from "react";
-import { FaCartPlus, FaCheck } from "react-icons/fa";
+import { FaCartPlus, FaCheck, FaPlus, FaMinus } from "react-icons/fa";
 import ToastNotification from "./ToastNotification";
 import AuthSuggestionModal from "./AuthSuggestionModal";
 import authService from "../services/authService";
+import { useCart } from "../context/CartContext"; // Importar el contexto del carrito
 import "./Carousel.scss";
 
 const Carousel = ({ title, products = [] }) => {
   const [toastMessage, setToastMessage] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [addedToCart, setAddedToCart] = useState([]); // Estado para productos añadidos
+  const [addedToCart, setAddedToCart] = useState([]); // Productos añadidos al carrito temporalmente
+  const [quantities, setQuantities] = useState({}); // Manejo de cantidades por producto
+
+  const { addToCart } = useCart(); // Método del contexto del carrito
+
+  // Actualizar cantidad de un producto
+  const updateQuantity = (id, delta, stock) => {
+    setQuantities((prev) => {
+      const newQuantity = Math.min(
+        Math.max((prev[id] || 1) + delta, 1), // No bajar de 1
+        stock // No superar el stock
+      );
+      return { ...prev, [id]: newQuantity };
+    });
+  };
 
   const handleAddToCart = (product) => {
     if (!authService.isAuthenticated()) {
@@ -18,9 +33,21 @@ const Carousel = ({ title, products = [] }) => {
       return;
     }
 
-    // Lógica para añadir al carrito
+    const quantity = quantities[product.id] || 1; // Cantidad seleccionada o 1 por defecto
+
+    // Añadir al carrito usando el contexto
+    addToCart(product, quantity);
+
+    // Añadir al estado de productos añadidos
     setAddedToCart((prev) => [...prev, product.id]);
-    setToastMessage(`"${product.name}" añadido al carrito.`);
+
+    // Mostrar Toast
+    setToastMessage(`"${product.name}" (${quantity} unidades) añadido al carrito.`);
+
+    // Quitar del estado después de 3 segundos
+    setTimeout(() => {
+      setAddedToCart((prev) => prev.filter((id) => id !== product.id));
+    }, 3000);
   };
 
   return (
@@ -97,6 +124,28 @@ const Carousel = ({ title, products = [] }) => {
                       <span className="fw-bold">${product.price}</span>
                     )}
                   </p>
+
+                  {/* Controles de cantidad */}
+                  <div className="d-flex align-items-center justify-content-center mb-2">
+                    <button
+                      className="btn btn-outline-secondary btn-sm me-2"
+                      onClick={() =>
+                        updateQuantity(product.id, -1, product.stock)
+                      }
+                    >
+                      <FaMinus />
+                    </button>
+                    <span>{quantities[product.id] || 1}</span>
+                    <button
+                      className="btn btn-outline-secondary btn-sm ms-2"
+                      onClick={() =>
+                        updateQuantity(product.id, 1, product.stock)
+                      }
+                    >
+                      <FaPlus />
+                    </button>
+                  </div>
+
                   {/* Botón de añadir al carrito */}
                   <button
                     className={`btn btn-sm w-100 d-flex align-items-center justify-content-center ${

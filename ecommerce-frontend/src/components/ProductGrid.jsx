@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaSearch, FaTimes, FaCartPlus, FaMinus, FaPlus } from "react-icons/fa";
+import { FaSearch, FaTimes, FaCartPlus, FaMinus, FaPlus, FaInfoCircle } from "react-icons/fa";
 import ToastNotification from "./ToastNotification";
 import AuthSuggestionModal from "./AuthSuggestionModal";
 import { useCart } from "../context/CartContext";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 import "./ProductGrid.scss";
 
 const ProductGrid = ({ products = [], fetchProducts }) => {
@@ -19,6 +20,13 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
   const [showOnlyOffers, setShowOnlyOffers] = useState(false);
   const { addToCart, isAuthenticated } = useCart();
   const [quantities, setQuantities] = useState({});
+
+  useEffect(() => {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+    [...popoverTriggerList].forEach(
+      (popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl)
+    );
+  }, [filteredProducts]);
 
   // Actualizar lista filtrada y paginada
   useEffect(() => {
@@ -68,7 +76,7 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
 
   // Añadir al carrito con autenticación
   const handleAddToCart = (product) => {
-    const quantity = quantities[product.id] || 1;
+    const quantity = quantities[product.id] || 1; // Obtener la cantidad seleccionada o 1 por defecto
 
     if (isAuthenticated) {
       try {
@@ -79,22 +87,26 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
           setShowToast(true);
           return;
         }
-        addToCart({ ...product, quantity });
+
+        // Añadir al carrito con la cantidad correcta
+        addToCart(product, quantity);
+
         setToastMessage(
-          `"${product.name}" se añadió al carrito (${quantity} unidades).`
+          `"${product.name}" añadido al carrito (${quantity} unidades).`
         );
         setShowToast(true);
         setAddedToCart((prev) => [...prev, product.id]);
-        setTimeout(
-          () =>
-            setAddedToCart((prev) => prev.filter((id) => id !== product.id)),
-          2000
-        );
+
+        // Eliminar estado "Añadido" después de 2 segundos
+        setTimeout(() => {
+          setAddedToCart((prev) => prev.filter((id) => id !== product.id));
+        }, 2000);
       } catch (error) {
-        setToastMessage(error.message);
+        setToastMessage(error.message || "Error al añadir al carrito.");
         setShowToast(true);
       }
     } else {
+      // Si no está autenticado, mostrar modal de sugerencia de autenticación
       setSelectedProduct(product);
       setShowAuthModal(true);
     }
@@ -103,7 +115,7 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
   const updateQuantity = (id, delta, stock) => {
     setQuantities((prev) => ({
       ...prev,
-      [id]: Math.min(Math.max((prev[id] || 1) + delta, 1), stock),
+      [id]: Math.min(Math.max((prev[id] || 1) + delta, 1), stock), // Ajustar la cantidad entre 1 y el stock disponible
     }));
   };
 
@@ -229,6 +241,17 @@ const ProductGrid = ({ products = [], fetchProducts }) => {
                     <FaPlus />
                   </button>
                 </div>
+                {/* Botón de popover */}
+                <button
+                  type="button"
+                  className="btn btn-info btn-sm w-100 mt-2"
+                  data-bs-toggle="popover"
+                  data-bs-title="Descripción del Producto"
+                  data-bs-content={product.description}
+                  data-bs-custom-class="custom-popover"
+                >
+                  <FaInfoCircle className="me-1" /> Ver Descripción
+                </button>
                 <button
                   className={`btn w-100 mt-3 ${
                     addedToCart.includes(product.id)

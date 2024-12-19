@@ -89,10 +89,10 @@ const Profile = () => {
         <div className="user-info">
           <div className="user-info-header mb-3">
             <p>
-              <strong>Correo Electrónico:</strong> {userData.email || "N/A"}
+              <strong>Correo Electrónico:</strong> {userData.email || "Información no disponible por el momento..."}
             </p>
             <p>
-              <strong>Nombre:</strong> {userData.name || "N/A"}
+              <strong>Nombre:</strong> {userData.name || "Información no disponible por el momento..."}
             </p>
             <p>
               <strong>Puntos:</strong> {userPoints || 0}
@@ -119,7 +119,7 @@ const Profile = () => {
               <tr>
                 <th>Código</th>
                 <th>Comprador</th>
-                <th>Cantidad Total</th>
+                <th>Cantidad de Productos</th>
                 <th>Creación</th>
                 <th>Actualización</th>
                 <th>Total</th>
@@ -132,7 +132,7 @@ const Profile = () => {
                 <React.Fragment key={order.id}>
                   <tr>
                     <td>{order.code || `ORD-${order.id}`}</td>
-                    <td>{userData.name || "N/A"}</td>
+                    <td>{userData.userId || "No Disponible"}</td>
                     <td>
                       {order.products.reduce((acc, product) => acc + product.quantity, 0)}
                     </td>

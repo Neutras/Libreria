@@ -1,4 +1,3 @@
-// Variables necesarias
 @import '../styles/custom.scss';
 
 .product-grid {
@@ -207,6 +206,48 @@
     }
   }
 
+  // Botón "Ver Descripción"
+  .btn-info {
+    background-color: $primary;
+    color: $light;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: lighten($primary, 10%);
+    }
+
+    i {
+      margin-right: 0.3rem;
+    }
+  }
+
+  // Popovers personalizados
+  .custom-popover {
+    $popover-bg: $light; // Fondo del popover
+    $popover-header-bg: $primary; // Fondo del encabezado
+    $popover-header-color: $light; // Color del texto del encabezado
+    $popover-body-color: $text; // Color del texto del cuerpo
+    $popover-border-color: $primary; // Borde del popover
+
+    .popover-header {
+      font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .popover-body {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
   // Toast
   .toast-container {
     z-index: 1055; // Ensure it appears above all other components
@@ -253,6 +294,16 @@
           }
         }
       }
+    }
+
+    .btn-info {
+      font-size: 0.8rem;
+      padding: 0.4rem;
+    }
+
+    .popover {
+      --bs-popover-header-font-size: 0.9rem;
+      --bs-popover-body-font-size: 0.8rem;
     }
   }
 
