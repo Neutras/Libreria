@@ -80,9 +80,9 @@ class AdminService {
   async updateOrderStatus(orderId, status) {
     try {
       const response = await this.apiClient.patch(
-        `/orders/${orderId}`,
-        { status },
-        { headers: this.getAuthHeaders() }
+        `/orders/${orderId}/status`, // Ruta correcta
+        { status }, // Enviar el estado en el cuerpo
+        { headers: this.getAuthHeaders() } // Encabezados con autenticación
       );
       return response.data;
     } catch (error) {
@@ -90,6 +90,7 @@ class AdminService {
       throw error;
     }
   }
+
 
   // Productos
   async getProducts() {
@@ -104,41 +105,41 @@ class AdminService {
     }
   }
 
-  async createProduct(productData) {
-    try {
-      const response = await this.apiClient.post('/products', productData, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error al crear producto:', error.response?.data || error.message);
-      throw error;
-    }
-  }
-
   async updateProduct(productId, productData) {
     try {
-      const response = await this.apiClient.patch(`/products/${productId}`, productData, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+        const response = await this.apiClient.put(`/products/${productId}`, productData, { // Cambiar PATCH por PUT
+            headers: this.getAuthHeaders(),
+        });
+        return response.data;
     } catch (error) {
-      console.error('Error al actualizar producto:', error.response?.data || error.message);
-      throw error;
+        console.error('Error al actualizar producto:', error.response?.data || error.message);
+        throw error;
     }
-  }
+}
 
-  async deleteProduct(productId) {
+async createProduct(productData) {
     try {
-      const response = await this.apiClient.delete(`/products/${productId}`, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+        const response = await this.apiClient.post('/products', productData, {
+            headers: this.getAuthHeaders(),
+        });
+        return response.data;
     } catch (error) {
-      console.error('Error al eliminar producto:', error.response?.data || error.message);
-      throw error;
+        console.error('Error al crear producto:', error.response?.data || error.message);
+        throw error;
     }
-  }
+}
+
+async deleteProduct(productId) {
+    try {
+        const response = await this.apiClient.delete(`/products/${productId}`, {
+            headers: this.getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al eliminar producto:', error.response?.data || error.message);
+        throw error;
+    }
+}
 
   // Promociones
   async getPromotions() {

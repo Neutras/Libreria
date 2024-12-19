@@ -10,6 +10,8 @@ import Profile from '../pages/Profile';
 import ImageUpload from '../pages/ImageUpload';
 import AdminDashboard from '../pages/admin/AdminDashboard'; // Dashboard de Admin
 import UserManagement from '../pages/admin/UserManagement'; // Subcomponentes de administración
+import OrderManagement from '../pages/admin/OrderManagement'; // Subcomponentes de administración
+import ProductManagement from '../pages/admin/ProductManagement'; // Subcomponentes de administración
 
 const AppRoutes = () => {
   return (
@@ -30,6 +32,8 @@ const AppRoutes = () => {
           <Route path="/admin">
             <Route index element={<AdminDashboard />} /> {/* Página principal */}
             <Route path="users" element={<UserManagement />} /> {/* Gestión de Usuarios */}
+            <Route path="orders" element={<OrderManagement />} /> {/* Gestión de Pedidos */}
+            <Route path="products" element={<ProductManagement />} /> {/* Gestión de Productos */}
           </Route>
         </Route>
       </Routes>

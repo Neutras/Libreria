@@ -61,7 +61,7 @@ const Navbar = () => {
 
   const handleProfileOrAdmin = () => {
     if (userRole === "admin") {
-      navigate("/admin-dashboard");
+      navigate("/admin");
     } else {
       navigate("/account");
     }

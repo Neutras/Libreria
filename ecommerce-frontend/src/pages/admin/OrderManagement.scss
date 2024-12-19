@@ -1,0 +1,191 @@
+@import "../../styles/custom.scss";
+
+.order-management {
+  padding: 20px;
+
+  h1 {
+    text-align: center;
+    color: $primary;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    .form-select,
+    .form-control {
+      width: 250px;
+      border: 1px solid $primary;
+      border-radius: 0.5rem;
+    }
+
+    .btn-outline-secondary {
+      color: $primary;
+      border-color: $primary;
+
+      &:hover {
+        background-color: lighten($primary, 30%);
+        color: $dark;
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+
+    th,
+    td {
+      text-align: center;
+      padding: 10px;
+      border: 1px solid $neutral;
+    }
+
+    th {
+      background-color: $primary;
+      color: $light;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    tr:hover {
+      background-color: lighten($primary, 40%);
+    }
+
+    .badge {
+      font-size: 0.9rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 0.5rem;
+      text-transform: capitalize;
+
+      &.bg-warning {
+        background-color: $warning;
+        color: $dark;
+      }
+
+      &.bg-info {
+        background-color: $info;
+        color: $light;
+      }
+
+      &.bg-primary {
+        background-color: $primary;
+        color: $light;
+      }
+
+      &.bg-success {
+        background-color: $success;
+        color: $light;
+      }
+
+      &.bg-danger {
+        background-color: $error;
+        color: $light;
+      }
+    }
+  }
+
+  .expandable-row {
+    background-color: $neutral;
+
+    td {
+      padding: 15px;
+    }
+
+    .order-details {
+      margin-top: 10px;
+      background-color: lighten($neutral, 10%);
+      padding: 15px;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+      h5 {
+        font-weight: bold;
+        color: $primary;
+        margin-bottom: 10px;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+
+        li {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 5px;
+
+          .product-name {
+            font-weight: bold;
+            color: $dark;
+          }
+
+          .product-quantity {
+            font-style: italic;
+            color: $text;
+          }
+        }
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    .btn-info {
+      background-color: $info;
+      color: $light;
+
+      &:hover {
+        background-color: darken($info, 10%);
+      }
+    }
+
+    .btn-primary {
+      background-color: $primary;
+      color: $light;
+
+      &:hover {
+        background-color: darken($primary, 10%);
+      }
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+
+    .btn {
+      border: 1px solid $primary;
+      background-color: $light;
+      color: $primary;
+      margin: 0 5px;
+
+      &:hover {
+        background-color: $primary;
+        color: $light;
+      }
+
+      &.active {
+        background-color: $primary;
+        color: $light;
+        border-color: $primary;
+      }
+
+      &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    }
+  }
+}

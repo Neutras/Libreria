@@ -24,7 +24,7 @@ const FloatingNav = () => {
   const goToDashboard = () => {
     const role = authService.getUserRole();
     if (role === "admin") {
-      navigate("/admin-dashboard");
+      navigate("/admin");
     } else {
       navigate("/account");
     }

@@ -1,0 +1,154 @@
+@import "../../styles/custom.scss";
+
+.product-management {
+  padding: 20px;
+
+  h1 {
+    text-align: center;
+    color: $primary;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .search-bar {
+    margin-bottom: 20px;
+
+    .form-control {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      border: 1px solid $primary;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+  }
+
+  .add-product {
+    background-color: $neutral;
+    padding: 20px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+
+    h4 {
+      color: $primary;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      .form-control {
+        flex: 1;
+        min-width: 150px;
+        border: 1px solid $primary;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+      }
+
+      .btn {
+        background-color: $success;
+        color: $light;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+
+        &:hover {
+          background-color: darken($success, 10%);
+        }
+
+        i {
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+
+    th,
+    td {
+      text-align: center;
+      padding: 10px;
+      border: 1px solid $neutral;
+    }
+
+    th {
+      background-color: $primary;
+      color: $light;
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background-color: lighten($primary, 40%);
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+
+      &.btn-info {
+        background-color: $info;
+        color: $light;
+
+        &:hover {
+          background-color: darken($info, 10%);
+        }
+      }
+
+      &.btn-danger {
+        background-color: $error;
+        color: $light;
+
+        &:hover {
+          background-color: darken($error, 10%);
+        }
+      }
+
+      i {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    .btn {
+      border: 1px solid $primary;
+      background-color: $light;
+      color: $primary;
+      border-radius: 0.5rem;
+
+      &:hover {
+        background-color: $primary;
+        color: $light;
+      }
+
+      &.btn-primary {
+        background-color: $primary;
+        color: $light;
+      }
+    }
+  }
+
+  .alert {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    text-align: center;
+    border-radius: 0.5rem;
+  }
+}
