@@ -167,10 +167,36 @@ const updateOrderStatus = async (req, res) => {
 const listOrders = async (req, res) => {
   try {
     const orders = req.user.role === 'admin'
-      ? await prisma.order.findMany({ include: { products: true } })
+      ? await prisma.order.findMany({
+          include: {
+            products: {
+              include: {
+                product: { // Incluir detalles del producto
+                  select: {
+                    id: true,
+                    name: true,
+                    price: true,
+                  },
+                },
+              },
+            },
+          },
+        })
       : await prisma.order.findMany({
           where: { userId: req.user.id },
-          include: { products: true },
+          include: {
+            products: {
+              include: {
+                product: { // Incluir detalles del producto
+                  select: {
+                    id: true,
+                    name: true,
+                    price: true,
+                  },
+                },
+              },
+            },
+          },
         });
 
     res.status(200).json({ orders });
@@ -179,6 +205,7 @@ const listOrders = async (req, res) => {
     res.status(500).json({ error: 'Error al listar pedidos.' });
   }
 };
+
 
 /**
  * Obtener detalles de un pedido.
@@ -189,7 +216,13 @@ const getOrderDetails = async (req, res) => {
   try {
     const order = await prisma.order.findUnique({
       where: { id: parseInt(id) },
-      include: { products: true },
+      include: {
+        products: {
+          include: {
+            product: true, // Incluir detalles del producto
+          },
+        },
+      },
     });
 
     if (!order || (req.user.role !== 'admin' && order.userId !== req.user.id)) {

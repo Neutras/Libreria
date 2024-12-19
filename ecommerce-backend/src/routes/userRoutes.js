@@ -4,7 +4,8 @@ const {
   registerUser, 
   loginUser, 
   getUserPoints, 
-  getUserPointsByAdmin 
+  getUserPointsByAdmin,
+  getUserProfile
 } = require('../controllers/userController');
 
 
@@ -27,6 +28,7 @@ router.get('/profile', protect, (req, res) => {
 // Ruta para ver puntos
 router.get('/points', protect, getUserPoints);
 router.get('/:userId/points', protect, admin, getUserPointsByAdmin); // Admin: Obtener puntos de un usuario
+router.get('/profile', protect, getUserProfile);
 
 
 module.exports = router;

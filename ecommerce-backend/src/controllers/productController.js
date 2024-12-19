@@ -204,18 +204,33 @@ const getRecommendations = async (req, res) => {
       include: { products: { include: { product: true } } },
     });
 
-    console.log("userOrders:", userOrders);
-
     if (userOrders.length === 0) {
-      console.log(
-        "El usuario no tiene historial de compras. Recomendando productos destacados..."
-      );
       const hotProducts = await prisma.product.findMany({
         where: { isHot: true },
-        take: 5, // Limitar a 5 productos
+        take: 5,
+        include: { promotions: true }, // Incluir promociones para calcular descuentos
       });
 
-      return res.status(200).json(hotProducts);
+      const processedHotProducts = hotProducts.map((product) => {
+        const activePromotion = product.promotions.find(
+          (promo) => new Date(promo.expiresAt) > new Date()
+        );
+
+        const discountPercentage = activePromotion
+          ? activePromotion.discount
+          : null;
+        const priceWithDiscount = discountPercentage
+          ? (product.price * (1 - discountPercentage / 100)).toFixed(2)
+          : null;
+
+        return {
+          ...product,
+          priceWithDiscount,
+          discountPercentage,
+        };
+      });
+
+      return res.status(200).json(processedHotProducts);
     }
 
     // Calcular categorías y autores comprados
@@ -238,29 +253,11 @@ const getRecommendations = async (req, res) => {
       });
     });
 
-    console.log("purchasedCategories:", purchasedCategories);
-    console.log("purchasedAuthors:", purchasedAuthors);
-
-    // Obtener usuarios con compras similares
-    const similarUsers = await prisma.order.findMany({
-      where: {
-        products: {
-          some: { product: { category: { in: Object.keys(purchasedCategories) } } },
-        },
-      },
-      select: { userId: true },
-    });
-
-    const similarUserIds = [...new Set(similarUsers.map((u) => u.userId))].filter(
-      (id) => id !== userId
-    );
-
-    console.log("similarUserIds:", similarUserIds);
-
     // Calcular la puntuación de cada producto
     const products = await prisma.product.findMany({
       include: { promotions: true },
     });
+
     const productScores = {};
 
     products.forEach((product) => {
@@ -283,13 +280,10 @@ const getRecommendations = async (req, res) => {
       }
 
       if (score > 0) {
-        productScores[product.id] = score; // Solo incluir productos con puntuación válida
+        productScores[product.id] = score;
       }
     });
 
-    console.log("productScores:", productScores);
-
-    // Excluir productos comprados y ordenar por puntuación
     const purchasedProductIds = userOrders.flatMap((order) =>
       order.products.map((product) => product.productId)
     );
@@ -297,26 +291,34 @@ const getRecommendations = async (req, res) => {
     const recommendedProductIds = Object.entries(productScores)
       .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
       .map(([productId]) => parseInt(productId))
-      .filter((id) => !purchasedProductIds.includes(id)) // Excluir productos ya comprados
-      .slice(0, 5); // Limitar a 5 productos
+      .filter((id) => !purchasedProductIds.includes(id))
+      .slice(0, 5);
 
-    console.log("recommendedProductIds:", recommendedProductIds);
-
-    if (recommendedProductIds.length === 0) {
-      console.log("No hay productos recomendados disponibles.");
-      return res
-        .status(404)
-        .json({ message: "No hay productos recomendados disponibles." });
-    }
-
-    // Consultar productos recomendados
     const recommendedProducts = await prisma.product.findMany({
       where: { id: { in: recommendedProductIds } },
+      include: { promotions: true },
     });
 
-    console.log("recommendedProducts:", recommendedProducts);
+    const processedRecommendations = recommendedProducts.map((product) => {
+      const activePromotion = product.promotions.find(
+        (promo) => new Date(promo.expiresAt) > new Date()
+      );
 
-    res.json(recommendedProducts);
+      const discountPercentage = activePromotion
+        ? activePromotion.discount
+        : null;
+      const priceWithDiscount = discountPercentage
+        ? (product.price * (1 - discountPercentage / 100)).toFixed(2)
+        : null;
+
+      return {
+        ...product,
+        priceWithDiscount,
+        discountPercentage,
+      };
+    });
+
+    res.json(processedRecommendations);
   } catch (error) {
     console.error("Error en getRecommendations:", error);
     res.status(500).json({ error: "Error al obtener recomendaciones" });

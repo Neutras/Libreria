@@ -53,7 +53,11 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
     }
 
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user.id, name: user.name, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '1h' }
+    );
 
     res.status(200).json({
       message: 'Inicio de sesión exitoso.',
@@ -129,11 +133,37 @@ const updateUserPoints = async (userId, points, operation = 'increment') => {
   }
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        points: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error al obtener el perfil del usuario:', error.message);
+    res.status(500).json({ error: 'Error al obtener el perfil del usuario.' });
+  }
+};
+
 
 module.exports = {
   registerUser,
   loginUser,
   getUserPoints,
   getUserPointsByAdmin,
-  updateUserPoints
+  updateUserPoints,
+  getUserProfile
 };
