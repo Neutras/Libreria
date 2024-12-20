@@ -1,0 +1,168 @@
+@import "../../styles/custom.scss";
+
+.promotion-management {
+  padding: 30px;
+
+  h1 {
+    text-align: center;
+    color: $primary;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    font-size: 1.8rem;
+  }
+
+  .search-bar {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+
+    .form-control {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      border: 1px solid $primary;
+      border-radius: 0.5rem;
+      padding: 0.8rem;
+      font-size: 1rem;
+    }
+  }
+
+  .add-promotion {
+    background-color: $neutral;
+    padding: 25px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    margin-bottom: 40px;
+
+    h4 {
+      color: $primary;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+
+      .form-control {
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid $primary;
+        border-radius: 0.5rem;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        background-color: $success;
+        color: $light;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        font-weight: bold;
+
+        &:hover {
+          background-color: darken($success, 10%);
+        }
+
+        i {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+
+    th,
+    td {
+      text-align: center;
+      padding: 12px;
+      border: 1px solid $neutral;
+    }
+
+    th {
+      background-color: $primary;
+      color: $light;
+      font-weight: bold;
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    tr:hover {
+      background-color: lighten($primary, 40%);
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.6rem 1rem;
+
+      &.btn-danger {
+        background-color: $error;
+        color: $light;
+
+        &:hover {
+          background-color: darken($error, 10%);
+        }
+      }
+
+      i {
+        margin-right: 6px;
+      }
+    }
+  }
+
+  .alert {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    text-align: center;
+    border-radius: 0.5rem;
+    padding: 10px;
+    background-color: $warning;
+    color: $dark;
+    font-weight: bold;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 10px;
+
+    .btn {
+      border: 1px solid $primary;
+      background-color: $light;
+      color: $primary;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: bold;
+
+      &:hover {
+        background-color: $primary;
+        color: $light;
+      }
+
+      &.btn-primary {
+        background-color: $primary;
+        color: $light;
+        border-color: $primary;
+      }
+
+      &.btn-light {
+        background-color: $light;
+        color: $primary;
+      }
+    }
+  }
+}

@@ -237,6 +237,8 @@ const ImageUpload = () => {
         Sube o captura una imagen con una lista de productos para analizarlos
         automáticamente. Asegúrate de que la imagen sea clara y cumpla con las
         recomendaciones para obtener los mejores resultados.
+        Recuerda que al analizar imagenes estás contribuyendo a que nuestro sistema
+        pueda tener un mejor rendimiento. 
       </p>
 
       <div className="instructions mb-4">

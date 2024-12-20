@@ -12,6 +12,10 @@ import AdminDashboard from '../pages/admin/AdminDashboard'; // Dashboard de Admi
 import UserManagement from '../pages/admin/UserManagement'; // Subcomponentes de administración
 import OrderManagement from '../pages/admin/OrderManagement'; // Subcomponentes de administración
 import ProductManagement from '../pages/admin/ProductManagement'; // Subcomponentes de administración
+import PromotionManagement from '../pages/admin/PromotionManagement';
+import MetricDashboard from '../pages/admin/MetricDashboard';
+import OrderConfirmation from '../pages/OrderConfirmation';
+
 
 const AppRoutes = () => {
   return (
@@ -27,6 +31,7 @@ const AppRoutes = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Profile />} />
           <Route path="/image-upload" element={<ImageUpload />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
           {/* Rutas para Administración */}
           <Route path="/admin">
@@ -34,6 +39,8 @@ const AppRoutes = () => {
             <Route path="users" element={<UserManagement />} /> {/* Gestión de Usuarios */}
             <Route path="orders" element={<OrderManagement />} /> {/* Gestión de Pedidos */}
             <Route path="products" element={<ProductManagement />} /> {/* Gestión de Productos */}
+            <Route path="promotions" element={<PromotionManagement />} /> {/* Gestión de Promociones */}
+            <Route path="metrics" element={<MetricDashboard />} /> {/* Metricas */}
           </Route>
         </Route>
       </Routes>

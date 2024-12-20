@@ -219,6 +219,29 @@ body {
   }
 }
 
+.price-with-discount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.old-price {
+  font-size: 0.9rem;
+  color: #ff6666;
+}
+
+.new-price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: $success;
+}
+
+.discount-percentage {
+  font-size: 0.9rem;
+  color: $primary;
+  font-weight: bold;
+}
+
 // Animations and Effects
 @keyframes fadeIn {
   0% {

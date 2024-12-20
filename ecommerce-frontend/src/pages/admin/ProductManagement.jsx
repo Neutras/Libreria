@@ -204,7 +204,7 @@ const handleChangeEditProduct = (e) => {
             type="number"
             name="stock"
             value={newProduct.stock}
-            placeholder="Stock"
+            placeholder="Stock Inicial"
             onChange={handleChangeNewProduct}
             className="form-control mb-2"
           />
@@ -220,7 +220,7 @@ const handleChangeEditProduct = (e) => {
             type="text"
             name="author"
             value={newProduct.author}
-            placeholder="Autor"
+            placeholder="Marca"
             onChange={handleChangeNewProduct}
             className="form-control mb-2"
           />

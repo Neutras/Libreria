@@ -2,14 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext"; // Importar contexto del carrito
 import Button from "../components/Button";
-import { FaTrashAlt, FaPlusCircle, FaMinusCircle, FaShoppingCart } from "react-icons/fa";
+import {
+  FaTrashAlt,
+  FaPlusCircle,
+  FaMinusCircle,
+  FaShoppingCart,
+} from "react-icons/fa";
 import "./Cart.scss"; // Asegúrate de tener los estilos necesarios para este componente
 
 const Cart = () => {
-  const { cart, removeFromCart, updateQuantity, calculateTotals, submitOrder } = useCart();
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    calculateTotals,
+    submitOrder,
+  } = useCart();
   const navigate = useNavigate();
   const [cartTotal, setCartTotal] = useState({ total: 0, points: 0 });
   const [localCart, setLocalCart] = useState(cart); // Usamos un estado local para el carrito
+  const [showModal, setShowModal] = useState(false); // Estado para controlar la modal
 
   // Calcular totales del carrito
   useEffect(() => {
@@ -51,9 +63,8 @@ const Cart = () => {
     }
 
     try {
-      const order = await submitOrder(); // Enviar el pedido al backend
-      console.log("Pedido realizado con éxito:", order);
-      navigate("/order-confirmation"); // Redirigir a la página de confirmación del pedido
+      await submitOrder(); // Enviar el pedido al backend
+      setShowModal(true); // Mostrar la modal al finalizar el pedido
     } catch (error) {
       console.error("Error al realizar el pedido:", error);
       alert("Hubo un problema al realizar el pedido. Intenta nuevamente.");
@@ -87,7 +98,9 @@ const Cart = () => {
                 <div className="price-with-discount">
                   <span className="old-price">${product.price}</span>
                   <span className="new-price">${productPrice}</span>
-                  <span className="discount-percentage">({product.discountPercentage.toFixed(2)}% OFF)</span>
+                  <span className="discount-percentage">
+                    ({product.discountPercentage.toFixed(2)}% OFF)
+                  </span>
                 </div>
               ) : (
                 <p className="cart-item-price">${productPrice}</p>
@@ -115,21 +128,21 @@ const Cart = () => {
                     <div className="quantity-controls">
                       <button
                         className="quantity-btn"
-                        onClick={() => handleUpdateQuantity(product.id, -1)} // Disminuir cantidad
+                        onClick={() => handleUpdateQuantity(product.id, -1)}
                       >
                         <FaMinusCircle />
                       </button>
                       <span className="quantity-display">{product.quantity}</span>
                       <button
                         className="quantity-btn"
-                        onClick={() => handleUpdateQuantity(product.id, 1)} // Aumentar cantidad
+                        onClick={() => handleUpdateQuantity(product.id, 1)}
                       >
                         <FaPlusCircle />
                       </button>
                     </div>
                     <Button
                       className="btn-danger cart-item-remove"
-                      onClick={() => handleRemoveProduct(product.id)} // Eliminar producto
+                      onClick={() => handleRemoveProduct(product.id)}
                     >
                       <FaTrashAlt />
                     </Button>
@@ -157,6 +170,51 @@ const Cart = () => {
             Finalizar Compra
           </Button>
         </>
+      )}
+
+      {/* Modal de Confirmación */}
+      {showModal && (
+        <div
+          className="modal fade show"
+          tabIndex="-1"
+          role="dialog"
+          style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Pedido Generado</h5>
+              </div>
+              <div className="modal-body">
+                <p>Tu pedido ha sido generado con éxito.</p>
+                <p>
+                  Gracias por confiar en nosotros. Puedes seguir comprando o
+                  dirigirte a tu perfil para ver tus pedidos y sus detalles.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <Button
+                  className="btn-secondary"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate("/");
+                  }}
+                >
+                  Volver al Inicio
+                </Button>
+                <Button
+                  className="btn-primary"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate("/account");
+                  }}
+                >
+                  Ir a tu Perfil
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

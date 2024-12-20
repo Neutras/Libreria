@@ -1,0 +1,115 @@
+@import "../styles/custom.scss";
+
+.order-confirmation {
+  padding: 20px;
+
+  h1 {
+    color: $primary;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .order-details {
+    background-color: $neutral;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    h2 {
+      font-size: 1.8rem;
+      color: $secondary;
+      margin-bottom: 10px;
+    }
+
+    p.text-muted {
+      font-size: 0.9rem;
+      color: $text;
+    }
+
+    .order-summary {
+      margin-top: 20px;
+
+      h3 {
+        font-size: 1.5rem;
+        color: $primary;
+        margin-bottom: 15px;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        margin: 10px 0;
+
+        span {
+          color: $text;
+        }
+
+        strong {
+          color: $primary;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .order-products {
+      margin-top: 20px;
+
+      h3 {
+        font-size: 1.5rem;
+        color: $primary;
+        margin-bottom: 15px;
+      }
+
+      .product-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: $card;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        p {
+          margin: 0;
+
+          &.text-muted {
+            font-size: 0.9rem;
+            color: $info;
+          }
+        }
+      }
+    }
+
+    .order-actions {
+      margin-top: 30px;
+
+      .btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+
+        &.btn-primary {
+          background-color: $primary;
+          color: $light;
+
+          &:hover {
+            background-color: darken($primary, 10%);
+          }
+        }
+
+        &.btn-secondary {
+          background-color: $secondary;
+          color: $dark;
+
+          &:hover {
+            background-color: darken($secondary, 10%);
+          }
+        }
+      }
+    }
+  }
+}

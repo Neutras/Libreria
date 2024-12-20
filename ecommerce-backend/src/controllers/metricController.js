@@ -24,7 +24,7 @@ const getTopProducts = async (req, res) => {
       by: ['productId'],
       _sum: { quantity: true },
       orderBy: { _sum: { quantity: 'desc' } },
-      take: 10, // Limitar a top 10
+      take: 8,
     });
 
     const productIds = topProducts.map((p) => p.productId);
@@ -102,19 +102,33 @@ const getRevenueByPeriod = async (req, res) => {
       return res.status(400).json({ message: "Período inválido. Usa 'day', 'week' o 'month'." });
     }
 
+    // Validar y parsear fechas
+    const start = startDate ? new Date(startDate) : new Date(0);
+    const end = endDate ? new Date(endDate) : new Date();
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Fechas inválidas. Asegúrate de usar un formato válido (YYYY-MM-DD)." });
+    }
+
+    // Asegurar que la fecha de inicio sea menor o igual a la fecha de fin
+    if (start > end) {
+      return res.status(400).json({ message: "La fecha de inicio no puede ser mayor que la fecha de fin." });
+    }
+
+    // Realizar la consulta a la base de datos
     const revenue = await prisma.$queryRaw`
       SELECT 
         DATE_TRUNC(${period}, "createdAt") AS period, 
-        SUM("total") AS "totalRevenue"
+        COALESCE(SUM("total"), 0) AS "totalRevenue"
       FROM "Order"
-      WHERE "status" = 'Completed' 
-        AND "createdAt" BETWEEN ${new Date(startDate || 0)} AND ${new Date(endDate || Date.now())}
+      WHERE "status" = 'Pending'
+        AND "createdAt" BETWEEN ${start} AND ${end}
       GROUP BY period
       ORDER BY period;
     `;
 
-    const labels = revenue.map((r) => new Date(r.period).toISOString()); // Asegurar formato ISO
-    const data = revenue.map((r) => r.totalRevenue || 0); // Reemplazar null por 0
+    // Formatear los resultados
+    const labels = revenue.map((r) => new Date(r.period).toISOString());
+    const data = revenue.map((r) => parseFloat(r.totalRevenue) || 0);
 
     res.status(200).json({ revenue, chartData: { labels, data } });
   } catch (error) {
@@ -126,12 +140,15 @@ const getRevenueByPeriod = async (req, res) => {
 /**
  * Obtiene los clientes más activos por número de pedidos realizados.
  */
+/**
+ * Obtiene los clientes más activos por número de pedidos realizados.
+ */
 const getActiveCustomers = async (req, res) => {
   try {
     const activeCustomers = await prisma.order.groupBy({
       by: ['userId'],
       _count: true,
-      orderBy: { _count: { userId: 'desc' } }, // Cambié `_all` por `userId`
+      orderBy: { _count: { userId: 'desc' } }, // Cambié _all por userId
       take: 5,
     });
 
@@ -217,45 +234,29 @@ const getMetricsSummary = async (req, res) => {
       }),
     ]);
 
-    // Enriquecer `topProducts` con detalles de producto
     const productIds = topProductsData.map((p) => p.productId);
-    const productDetails = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: { id: true, name: true, price: true },
-    });
-    const productMap = productDetails.reduce((map, product) => {
-      map[product.id] = product;
-      return map;
-    }, {});
+    const productDetails = await fetchProductDetails(productIds);
 
     const topProducts = topProductsData.map((p) => ({
       productId: p.productId,
-      name: productMap[p.productId]?.name || 'Desconocido',
+      name: productDetails[p.productId]?.name || 'Desconocido',
       totalQuantity: p._sum.quantity,
-      totalRevenue: productMap[p.productId]
-        ? productMap[p.productId].price * p._sum.quantity
-        : 0,
+      totalRevenue: productDetails[p.productId]?.price * p._sum.quantity || 0,
     }));
 
-    // Enriquecer `activeCustomers` con detalles de usuario
     const userIds = activeCustomersData.map((u) => u.userId);
     const userDetails = await prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, name: true, email: true },
     });
-    const userMap = userDetails.reduce((map, user) => {
-      map[user.id] = user;
-      return map;
-    }, {});
 
     const activeCustomers = activeCustomersData.map((u) => ({
       userId: u.userId,
-      name: userMap[u.userId]?.name || 'Desconocido',
-      email: userMap[u.userId]?.email || 'No disponible',
+      name: userDetails.find((user) => user.id === u.userId)?.name || 'Desconocido',
+      email: userDetails.find((user) => user.id === u.userId)?.email || 'No disponible',
       orderCount: u._count,
     }));
 
-    // Respuesta enriquecida
     res.status(200).json({
       topProducts,
       revenue: {

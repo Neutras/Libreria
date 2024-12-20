@@ -1,0 +1,162 @@
+@import "../../styles/custom.scss";
+
+.metric-dashboard {
+  padding: 20px;
+
+  h1 {
+    text-align: center;
+    color: $primary;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .metrics-summary {
+    margin-bottom: 30px;
+
+    .card {
+      background-color: $neutral;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+
+      .card-body {
+        padding: 20px;
+        text-align: center;
+
+        h5 {
+          color: $primary;
+          font-weight: bold;
+          text-transform: uppercase;
+          margin-bottom: 10px;
+        }
+
+        p {
+          font-size: 1.1rem;
+          font-weight: bold;
+          color: $dark;
+        }
+      }
+    }
+  }
+
+  .chart-buttons {
+    margin-bottom: 30px;
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      border-radius: 0.5rem;
+
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+
+      &.btn-primary {
+        background-color: $primary;
+        color: $light;
+
+        &:hover {
+          background-color: darken($primary, 10%);
+        }
+      }
+
+      &.btn-secondary {
+        background-color: $info;
+        color: $light;
+
+        &:hover {
+          background-color: darken($info, 10%);
+        }
+      }
+
+      &.btn-warning {
+        background-color: $warning;
+        color: $dark;
+
+        &:hover {
+          background-color: darken($warning, 10%);
+        }
+      }
+
+      &.btn-info {
+        background-color: $neutral;
+        color: $primary;
+
+        &:hover {
+          background-color: lighten($primary, 40%);
+          color: $light;
+        }
+      }
+    }
+  }
+
+  .chart-section {
+    margin-bottom: 30px;
+
+    h5 {
+      text-align: center;
+      color: $primary;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+
+      canvas {
+        max-width: 100%;
+      }
+    }
+  }
+
+  .alert {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    color: $error;
+    background-color: lighten($error, 40%);
+    padding: 10px 20px;
+    border: 1px solid $error;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+
+    .btn {
+      margin: 0 5px;
+      border: 1px solid $primary;
+      background-color: $light;
+      color: $primary;
+
+      &:hover {
+        background-color: $primary;
+        color: $light;
+      }
+
+      &.btn-primary {
+        background-color: $primary;
+        color: $light;
+        border-color: $primary;
+      }
+
+      &.btn-light {
+        background-color: $primary;
+        color: $primary;
+      }
+
+      &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    }
+  }
+}
