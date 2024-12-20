@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import { processImage } from "../services/api";
-import cartService from "../services/cartService";
+import { useCart } from "../context/CartContext";
 import authService from "../services/authService";
 import AuthSuggestionModal from "../components/AuthSuggestionModal";
 import ToastNotification from "../components/ToastNotification";
@@ -24,11 +24,11 @@ const ImageUpload = () => {
   const [addedToCart, setAddedToCart] = useState([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
-
   const webcamRef = useRef(null);
+
+  const { addToCart } = useCart();
 
   const capturePhoto = () => {
     if (webcamRef.current) {
@@ -84,7 +84,7 @@ const ImageUpload = () => {
     }
   };
 
-  const addToCart = (product, quantity) => {
+  const addToCartHandler = (product, quantity) => {
     if (!authService.isAuthenticated()) {
       setSelectedProduct(product);
       setShowAuthModal(true);
@@ -92,14 +92,12 @@ const ImageUpload = () => {
     }
 
     try {
-      // Pasar el producto con la cantidad correcta al servicio del carrito
-      cartService.addToCart(product, quantity);
+      addToCart(product, quantity);
       setToastMessage(
         `${product.name} añadido al carrito (${quantity} unidades).`
       );
       setShowToast(true);
 
-      // Añadir al estado de productos añadidos
       setAddedToCart((prev) => [...prev, product.id]);
       setTimeout(
         () => setAddedToCart((prev) => prev.filter((id) => id !== product.id)),
@@ -125,7 +123,6 @@ const ImageUpload = () => {
     const updatedResult = { ...result };
     const previousProduct = updatedResult.matchedProducts[index];
 
-    // Añadir el producto actual a las recomendaciones antes de reemplazar
     const updatedRecommendations = [
       ...previousProduct.recommendations.filter(
         (rec) => rec.id !== recommendation.id
@@ -160,7 +157,7 @@ const ImageUpload = () => {
               <div>
                 <h5>{product.name}</h5>
                 <p>
-                  <b>Precio:</b> ${product.price}{" "}
+                  <b>Precio:</b> ${product.price} {" "}
                 </p>
                 <p>
                   <b>Stock:</b> {product.stock || 0} unidades
@@ -186,14 +183,14 @@ const ImageUpload = () => {
                       ? "btn-success"
                       : "btn-primary"
                   }`}
-                  onClick={() => addToCart(product, product.quantity)} // Pasar la cantidad correcta
+                  onClick={() => addToCartHandler(product, product.quantity)}
                   disabled={addedToCart.includes(product.id)}
                 >
                   {addedToCart.includes(product.id) ? (
                     <FaCheck />
                   ) : (
                     <FaShoppingCart />
-                  )}{" "}
+                  )} {" "}
                   {addedToCart.includes(product.id)
                     ? "Añadido"
                     : "Añadir al carrito"}
@@ -236,9 +233,9 @@ const ImageUpload = () => {
       <p className="section-description text-center mb-4">
         Sube o captura una imagen con una lista de productos para analizarlos
         automáticamente. Asegúrate de que la imagen sea clara y cumpla con las
-        recomendaciones para obtener los mejores resultados.
-        Recuerda que al analizar imagenes estás contribuyendo a que nuestro sistema
-        pueda tener un mejor rendimiento. 
+        recomendaciones para obtener los mejores resultados. Recuerda que al
+        analizar imágenes estás contribuyendo a que nuestro sistema pueda tener
+        un mejor rendimiento.
       </p>
 
       <div className="instructions mb-4">
