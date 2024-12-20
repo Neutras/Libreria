@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:4000/api/orders';
+const API_URL = 'https://libreria-1-6ifo.onrender.com/api/orders';
 
 class OrderService {
   // Obtener los pedidos del usuario autenticado
