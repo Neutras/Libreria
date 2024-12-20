@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Configurar Axios con base URL
 const apiClient = axios.create({
-  baseURL: "http://localhost:4000/api", // Base URL de la API
+  baseURL: "https://libreria-1-6ifo.onrender.com/api", // Base URL de la API
 });
 
 // Configurar token de autenticación
